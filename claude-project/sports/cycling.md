@@ -47,3 +47,6 @@ Upload this file to your Claude Project Library alongside `endurance-methodology
 ## Cycling-Specific Strength & Mobility
 - Strength focus: unilateral lower body (Bulgarian split squats, lunges, step-ups, single-leg RDL, hip thrust, calves) + core stability.
 - Mobility: hips, posterior chain, thoracic extension for aero/road posture.
+
+## Environment & Logistics (Check at Intake & Brief)
+- Local terrain (flat roads vs sustained climbs vs gravel/MTB trails), daylight/winter constraints, indoor trainer & fan setup, and power meter consistency across bikes.

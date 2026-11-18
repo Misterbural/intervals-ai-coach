@@ -34,7 +34,7 @@ import statistics
 import sys
 from datetime import date, timedelta
 
-VERSION = "2.0"
+VERSION = "2.1"
 K_CTL = 1 / 42  # fitness time constant (days)
 K_ATL = 1 / 7   # fatigue time constant (days)
 BAR_MAX = 20
@@ -123,17 +123,27 @@ def max_load_for_ctl_ramp(ctl0, max_ramp):
 # ---------------------------------------------------------------- block targets
 
 def compute_targets(start_load, ctl, atl, weeks, cycle, max_increase, max_ctl_ramp,
-                    recovery_drop, load_per_hour=None, sessions=None, start_date=None):
+                    recovery_drop, load_per_hour=None, sessions=None, start_date=None,
+                    camp_weeks=(), camp_factor=1.35):
     """Compute weekly load targets for a training block.
 
     Load week 1 = start_load (actual absorbed load). Subsequent load weeks grow
     by (1 + max_increase). After a recovery week, the next block resumes at the
-    level of week 2 of the previous block. Every load week is capped by
+    level of week 2 of the previous block. Every normal load week is capped by
     max_ctl_ramp. Recovery weeks drop by recovery_drop relative to the prior week.
+    Planned training camp weeks (1-indexed in `camp_weeks`) apply `camp_factor`
+    on top of the last normal load week and force the following week to be a
+    recovery week.
     """
     n_load, n_rec = (int(x) for x in cycle.split(":"))
     pattern = ["load"] * n_load + ["recovery"] * n_rec
     phases = [pattern[i % len(pattern)] for i in range(weeks)]
+    camp_set = {int(w) for w in camp_weeks}
+    for w in sorted(camp_set):
+        if 1 <= w <= weeks:
+            phases[w - 1] = "camp"
+            if w < weeks and (w + 1) not in camp_set:
+                phases[w] = "recovery"
     if isinstance(sessions, (int, float)) or sessions is None:
         sessions = [sessions] * weeks
     elif len(sessions) < weeks:
@@ -143,8 +153,16 @@ def compute_targets(start_load, ctl, atl, weeks, cycle, max_increase, max_ctl_ra
     last_load, prev_load, block_start, prev_phase = None, None, None, None
     for i, phase in enumerate(phases):
         note = ""
-        if phase == "load":
-            new_block = last_load is None or prev_phase == "recovery"
+        if phase == "camp":
+            base = last_load if last_load is not None else start_load
+            load = base * camp_factor
+            note = f"planned training camp (x{camp_factor:g}; keep mostly Z1-Z2, recover after)"
+            if block_start is None:
+                block_start = base
+            if last_load is None:
+                last_load = base
+        elif phase == "load":
+            new_block = last_load is None or prev_phase in ("recovery", "camp")
             if last_load is None:
                 wanted = start_load
             elif new_block:
@@ -160,7 +178,11 @@ def compute_targets(start_load, ctl, atl, weeks, cycle, max_increase, max_ctl_ra
                 block_start = load
             last_load = load
         else:
-            load = prev_load * (1 - recovery_drop)
+            ref = prev_load if prev_load is not None else start_load
+            drop = max(recovery_drop, 0.45) if prev_phase == "camp" else recovery_drop
+            load = ref * (1 - drop)
+            if prev_phase == "camp":
+                note = f"post-camp recovery (-{drop * 100:.0f}%)"
         proj = project_weeks(cur_ctl, cur_atl, [load])[0]
         change_pct = None if prev_load is None else (load - prev_load) / prev_load * 100
         alert = "TSB below -25" if proj["tsb"] < -25 else ""
@@ -216,10 +238,12 @@ def cmd_targets(args):
     if args.sessions:
         vals = [int(x) for x in parse_numbers(args.sessions)]
         sessions = vals[0] if len(vals) == 1 else vals
+    camp_weeks = [int(x) for x in parse_numbers(args.camp_weeks)] if args.camp_weeks else ()
     rows = compute_targets(
         start, args.ctl, args.atl if args.atl is not None else args.ctl,
         args.weeks, args.cycle, args.max_increase, args.max_ctl_ramp,
         args.recovery_drop, ratio, sessions, args.start_date,
+        camp_weeks=camp_weeks, camp_factor=args.camp_factor,
     )
     if args.json_out:
         print(json.dumps(rows, ensure_ascii=False, indent=2))
@@ -863,38 +887,68 @@ def check_plan(plan):
     loads = [w["load"] for w in weeks]
     phases = [w.get("phase", "load") for w in weeks]
 
-    # 1. Week-to-week load jump
-    jumps = [i + 1 for i in range(1, len(loads)) if loads[i] > 1.3 * max(loads[max(0, i - 3):i])]
-    add("Weekly load jump <= 1.3x highest of previous 3 weeks",
-        "FAIL" if jumps else "OK", f"weeks {jumps}" if jumps else "", "coaching convention")
+    # 1. Week-to-week load jump (planned training camps exempt up to 2.0x)
+    jumps = [i + 1 for i in range(1, len(loads))
+             if phases[i] != "camp" and loads[i] > 1.3 * max(loads[max(0, i - 3):i])]
+    camp_extreme = [i + 1 for i in range(1, len(loads))
+                    if phases[i] == "camp" and loads[i] > 2.0 * max(loads[max(0, i - 3):i])]
+    add("Weekly load jump <= 1.3x highest of previous 3 weeks (camps exempt up to 2.0x)",
+        "FAIL" if jumps else ("WARN" if camp_extreme else "OK"),
+        (f"weeks {jumps}" if jumps else "") + (f" extreme camp weeks {camp_extreme}" if camp_extreme else ""),
+        "coaching convention")
 
-    # 2. CTL ramp (3-week cap scales with weekly cap unless overridden)
+    # 2. CTL ramp (non-camp weeks; 3-week cap scales with weekly cap unless overridden)
     ctl0 = plan.get("start_ctl", 0)
     atl0 = plan.get("start_atl", ctl0)
     proj = project_weeks(ctl0, atl0, loads)
     ramps = [proj[0]["ctl"] - ctl0] + [proj[i]["ctl"] - proj[i - 1]["ctl"] for i in range(1, len(proj))]
     max_wk = plan.get("max_ctl_ramp", 5)
     max_3wk = plan.get("max_3wk_ctl_ramp", 3 * max_wk)
-    over_wk = [i + 1 for i, m in enumerate(ramps) if m > max_wk + 0.05]
-    over_3wk = [i + 1 for i in range(2, len(ramps)) if sum(ramps[i - 2:i + 1]) > max_3wk + 0.05]
-    add(f"CTL ramp <= {max_wk:g}/week and <= {max_3wk:g} over 3 weeks",
+    over_wk = [i + 1 for i, m in enumerate(ramps) if phases[i] != "camp" and m > max_wk + 0.05]
+    over_3wk = [i + 1 for i in range(2, len(ramps))
+                if "camp" not in phases[i - 2:i + 1] and sum(ramps[i - 2:i + 1]) > max_3wk + 0.05]
+    add(f"CTL ramp <= {max_wk:g}/week and <= {max_3wk:g} over 3 weeks (non-camp)",
         "FAIL" if over_wk or over_3wk else "OK",
         (f"weeks over: {over_wk} " if over_wk else "") + (f"3-week windows over: {over_3wk}" if over_3wk else ""),
         "methodology guardrails; Friel, Couzens")
 
-    # 3. Peak vs start
-    ratio = max(loads) / loads[0] if loads[0] else None
-    add("Peak week <= 1.8x starting week",
+    # 3. Peak vs start (non-camp weeks)
+    non_camp_loads = [loads[i] for i, p in enumerate(phases) if p != "camp"] or loads
+    ratio = max(non_camp_loads) / loads[0] if loads[0] else None
+    add("Peak non-camp week <= 1.8x starting week",
         "OK" if ratio is not None and ratio <= 1.8 else "WARN",
         "" if ratio is None else f"ratio {ratio:.2f}", "published plans")
 
-    # 4. Consecutive load weeks
+    # 4. Consecutive load/camp weeks
     streak, worst = 0, 0
     for p in phases:
-        streak = streak + 1 if p == "load" else 0
+        streak = streak + 1 if p in ("load", "camp") else 0
         worst = max(worst, streak)
-    add("At most 3 consecutive load weeks", "OK" if worst <= 3 else "WARN",
+    add("At most 3 consecutive load/camp weeks", "OK" if worst <= 3 else "WARN",
         f"{worst} consecutive", "coaching convention")
+
+    # 4b. Planned training camp safety rules
+    camp_idx = [i for i, p in enumerate(phases) if p == "camp"]
+    if camp_idx:
+        no_recovery = [i + 1 for i in camp_idx
+                       if i + 1 < len(phases) and phases[i + 1] not in ("recovery", "taper")]
+        unclosed = [i + 1 for i in camp_idx if i + 1 == len(phases)]
+        back_to_back = [i + 1 for i in camp_idx if i + 1 in camp_idx]
+        too_intense = [i + 1 for i in camp_idx
+                       if ("easy_pct" in weeks[i] and weeks[i]["easy_pct"] < 75)
+                       or weeks[i].get("above_threshold_pct", 0) > 10]
+        details = []
+        if no_recovery:
+            details.append(f"week(s) {no_recovery} not followed by recovery")
+        if unclosed:
+            details.append(f"week(s) {unclosed} at end of block (schedule recovery next)")
+        if back_to_back:
+            details.append(f"consecutive camp weeks at {back_to_back}")
+        if too_intense:
+            details.append(f"high intensity during camp week(s) {too_intense}")
+        status = "FAIL" if no_recovery else ("WARN" if (unclosed or back_to_back or too_intense) else "OK")
+        add("Training camp: followed immediately by recovery and mostly easy (>= 75% easy, <= 10% above threshold)",
+            status, "; ".join(details), "overload camp best practices")
 
     # 5. Taper
     idx = [i for i, p in enumerate(phases) if p == "taper"]
@@ -1210,6 +1264,33 @@ def run_self_test():
     ok(any("Running:" in c["check"] and c["status"] == "WARN" for c in r), "running km jump")
     ok(any("Trail:" in c["check"] and c["status"] == "WARN" for c in r), "trail vert jump")
 
+    # Training camp weeks in targets and check-plan
+    res = compute_targets(300, 45, 45, 4, "3:1", 0.10, 5, 0.35, camp_weeks=[3], camp_factor=1.5)
+    ok([s["phase"] for s in res] == ["load", "load", "camp", "recovery"], f"camp phases: {[s['phase'] for s in res]}")
+    ok(res[2]["load"] > res[1]["load"] * 1.3 and res[3]["load"] < res[2]["load"] * 0.6, f"camp load/recovery: {res}")
+
+    r = check_plan({"start_ctl": 45, "weeks": [
+        {"load": 300, "phase": "load"},
+        {"load": 330, "phase": "load"},
+        {"load": 520, "phase": "camp", "easy_pct": 85, "above_threshold_pct": 5},
+        {"load": 240, "phase": "recovery"},
+    ]})
+    ok(all(c["status"] == "OK" for c in r), f"valid camp plan: {r}")
+
+    r = check_plan({"start_ctl": 45, "weeks": [
+        {"load": 300, "phase": "load"},
+        {"load": 500, "phase": "camp", "easy_pct": 85},
+        {"load": 320, "phase": "load"},
+    ]})
+    ok(any(c["check"].startswith("Training camp") and c["status"] == "FAIL" for c in r), "camp without recovery fails")
+
+    r = check_plan({"start_ctl": 45, "weeks": [
+        {"load": 300, "phase": "load"},
+        {"load": 500, "phase": "camp", "easy_pct": 60, "above_threshold_pct": 18},
+        {"load": 220, "phase": "recovery"},
+    ]})
+    ok(any(c["check"].startswith("Training camp") and c["status"] == "WARN" for c in r), "too-intense camp warns")
+
     print(f"All tests passed ({n}). coach_tools.py version {VERSION}.")
 
 
@@ -1233,6 +1314,8 @@ def main():
     c.add_argument("--load-per-hour", type=float, help="average load per hour (if --start-hours omitted)")
     c.add_argument("--sessions", help="sessions per week, e.g. 4 or 3,4,4,3")
     c.add_argument("--start-date", help="Monday of week 1 (YYYY-MM-DD)")
+    c.add_argument("--camp-weeks", help="1-indexed planned training camp week(s), e.g. 3 (auto-followed by recovery)")
+    c.add_argument("--camp-factor", type=float, default=1.35, help="load multiplier on camp week(s) (default: 1.35)")
     c.add_argument("--json-out", action="store_true")
     c.set_defaults(f=cmd_targets)
 

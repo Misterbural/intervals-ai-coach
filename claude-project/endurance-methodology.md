@@ -65,6 +65,12 @@ Pair this file with the active sport module(s) from `sports/*.md`. When updated,
   - C-race (including virtual/training races): replaces the week's key session.
   - Day before A/B race: short opener (easy endurance + 3–4 brief accelerations).
 - **Known life constraints** (on-call weeks, travel, heavy work weeks): build them into the block brief proactively (align recovery weeks or lighter volume) rather than fighting daily amber/red overrides.
+- **Planned training camps / overload weeks (`camp` phase — all sports)**:
+  - A planned high-volume week (cycling camp, mountain trail camp, triathlon spring camp, vacation volume block) is explicitly marked `phase: "camp"` in `coach_tools.py targets --camp-weeks ...` and `check-plan`.
+  - **Entry**: arrive reasonably fresh (do not launch a camp already deep in negative TSB or on amber/red readiness).
+  - **Intensity**: shift intensity sharply down during the camp (target ≥ 75% easy Z1–Z2, ≤ 10% above threshold; avoid heavy VO2max or maximal strength work). In running/trail, manage mechanical/eccentric impact conservatively (mix hiking, softer surfaces, or cross-training if needed).
+  - **Mandatory absorption**: every `camp` week **must** be followed immediately by a `recovery` week (−40 to −50% load vs camp peak) so fitness consolidates instead of tipping into non-functional overreaching.
+  - **Support**: step up carbohydrates, hydration, sleep, and daily HRV/RHR checks throughout the camp.
 - **Presentation before writing**: show a weekly summary table (phase, target load with `▇` bar, hours, delta %), then day-by-day detail for the week being written (type, title, duration, load). Write nothing without explicit approval. Athlete overrides take precedence over plan rules, though the coach must state candidly if an override creates risk. Medical directives always remain on top.
 
 ## Writing to intervals.icu

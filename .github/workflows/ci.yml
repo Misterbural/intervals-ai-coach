@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run coach_tools.py self-test suite
+        run: python3 tools/coach_tools.py test
+
+      - name: Validate SKILL.md files and build ZIP archives
+        run: python3 scripts/build_skills_zip.py

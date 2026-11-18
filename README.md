@@ -1,7 +1,12 @@
 # intervals-ai-coach
 
-**An AI endurance coach connected directly to [intervals.icu](https://intervals.icu) via MCP** — built for **cycling, running, trail running, and triathlon**, combining structured sports-science methodology, deterministic Python tooling, modular Claude Skills, and a hardened self-hosted deployment guide.
+[![CI](https://github.com/Misterbural/intervals-ai-coach/actions/workflows/ci.yml/badge.svg)](https://github.com/Misterbural/intervals-ai-coach/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
+**An AI endurance coach connected directly to [intervals.icu](https://intervals.icu) via MCP** — built for **cycling, running, trail running, swimming, and triathlon**, combining structured sports-science methodology, deterministic Python tooling, modular Claude Skills, and a hardened self-hosted deployment guide.
+
+> **Use in Any Language:** The repository is written in English for broad accessibility, but **your coach works in your native language** (French, Spanish, German, Italian, etc.). Simply tell the coach your preferred language at the start of the initial intake (or set it in `athlete-profile.md`)—all chats, generated files, and intervals.icu workout titles/descriptions will follow your language while keeping intervals.icu syntax valid.
+>
 > **Platform compatibility:** Designed and tested turnkey for **Claude** (Projects, Library files, Skills, remote OAuth MCP connector, Python execution, and Scheduled Tasks). Because the methodology, sport modules, `coach_tools.py`, and MCP deployment are plain Markdown + standard-library Python, ~90% of the repo is also directly reusable with any MCP-compatible agent (Claude Code, Antigravity, Codex, Gemini CLI, etc.).
 
 ---
@@ -12,8 +17,8 @@ Naive "chat with an LLM about my workouts" setups fail in predictable ways: hall
 
 This repository addresses each failure mode explicitly:
 
-- **Deterministic math (`tools/coach_tools.py`)**: intervals.icu remains the sole source of truth for CTL, ATL, TSB, eFTP, and curves. Every other calculation—block load targets, ±5% weekly rebalancing, Foster monotony/strain, CP/W', Critical Speed/D', CSS, HRV/RHR readiness flags, fatigued-curve durability, plan sanity checks, and intervals.icu workout linting—runs in a zero-dependency Python 3 script with **60 built-in unit tests**.
-- **Modular multi-sport design**: a lean endurance core (`endurance-methodology.md`) paired with drop-in sport modules (`cycling.md`, `running.md`, `trail.md`, `triathlon.md`) so your coach loads only the physiology and workout syntax relevant to your sports.
+- **Deterministic math (`tools/coach_tools.py`)**: intervals.icu remains the sole source of truth for CTL, ATL, TSB, eFTP, and curves. Every other calculation—block load targets (including planned `camp` overload weeks), ±5% weekly rebalancing, Foster monotony/strain, CP/W', Critical Speed/D', CSS, HRV/RHR readiness flags, fatigued-curve durability, plan sanity checks, and intervals.icu workout linting—runs in a zero-dependency Python 3 script with **65 built-in unit tests**.
+- **Modular multi-sport design**: a lean endurance core (`endurance-methodology.md`) paired with drop-in sport modules (`cycling.md`, `running.md`, `trail.md`, `swimming.md`, `triathlon.md`)—plus support for custom modules (`sports/<your-sport>.md`)—so your coach loads only the physiology, terrain constraints (e.g. flatlander trail D+ strategies), and workout syntax relevant to your sports.
 - **Lazy-loaded workflows (`skills/`)**: 6 focused `SKILL.md` procedures (initial intake, season revision, block brief, Sunday weekly review, daily adjustment, end-of-block review) keep project instructions concise and execution reliable.
 - **Human-in-the-loop & anti-sycophancy**: strict decision hierarchy (medical/pain > validated plan > thresholds > progression), "can vs should" rule (feeling fresh never overrides a recovery week), mandatory approval before every calendar write, and a built-in monthly critical self-review.
 - **Hardened remote MCP hosting**: non-root `systemd` service bound to `127.0.0.1`, Cloudflare Tunnel (zero open HTTP ports), and Cloudflare Access Managed OAuth locked to your email address.
@@ -58,14 +63,15 @@ Wearables / Bike Computer / Trainer (direct sync, not via Strava)
 │   └── workflow-and-best-practices.md       # Weekly routine, pilot week, scheduled tasks, checklist
 ├── claude-project/
 │   ├── project-instructions.md              # Paste into Claude Project Instructions
-│   ├── endurance-methodology.md             # Shared endurance training methodology
+│   ├── endurance-methodology.md             # Shared endurance methodology (incl. training camps)
 │   ├── sports/                              # Pick the module(s) matching your sport(s):
 │   │   ├── cycling.md                       # CP/W', indoor/outdoor FTP, kJ durability, virtual races
 │   │   ├── running.md                       # CS/D', pace/LTHR, mechanical mileage progression caps
-│   │   ├── trail.md                         # Vertical gain/loss, eccentric load, GAP, poles, gut training
-│   │   └── triathlon.md                     # Swim CSS, 3-sport thresholds, bricks, swim `mtr` syntax
+│   │   ├── trail.md                         # Vert gain/loss, flatlander D+ strategies, eccentric load, GAP
+│   │   ├── swimming.md                      # Pool & open water, CSS, shoulder load, `mtr` syntax
+│   │   └── triathlon.md                     # 3-sport load integration, bricks, race-distance priorities
 │   └── templates/
-│       ├── athlete-profile.md               # Customize & upload to Project Library
+│       ├── athlete-profile.md               # Optional: fill manually OR let initial intake generate it
 │       ├── season-goals.md                  # Generated by coach-initial-intake (leave out at start)
 │       ├── coaching-journal.md              # Long-term block plans, reviews & monthly self-critiques
 │       └── science-watch.md                 # Baseline evidence benchmarks (v0)
@@ -77,7 +83,7 @@ Wearables / Bike Computer / Trainer (direct sync, not via Strava)
 │   ├── coach-daily-adjustment/SKILL.md
 │   └── coach-block-review/SKILL.md
 ├── tools/
-│   └── coach_tools.py                       # Deterministic CLI (Python 3 stdlib only, 60 self-tests)
+│   └── coach_tools.py                       # Deterministic CLI (Python 3 stdlib only, 65 self-tests)
 └── scripts/
     └── build_skills_zip.py                  # Validates SKILL.md files and builds dist/skills/*.zip
 ```
@@ -102,14 +108,13 @@ Wearables / Bike Computer / Trainer (direct sync, not via Strava)
    - Paste [claude-project/project-instructions.md](claude-project/project-instructions.md) into **Project Settings → Memory → Project Instructions**.
    - Upload to the Project Library:
      - `claude-project/endurance-methodology.md`
-     - Your active sport module(s) from `claude-project/sports/` (`cycling.md`, `running.md`, `trail.md`, and/or `triathlon.md`)
-     - Your filled-in `athlete-profile.md` (from `claude-project/templates/`)
+     - Your active sport module(s) from `claude-project/sports/` (`cycling.md`, `running.md`, `trail.md`, `swimming.md`, and/or `triathlon.md` — or drop in your own custom `sports/<my-sport>.md` for rowing, Nordic skiing, ski-mo, etc.)
      - `coaching-journal.md` and `science-watch.md`
      - `tools/coach_tools.py`
-   - *Leave `season-goals.md` out initially*—its absence triggers the initial intake workflow.
+     - *(Optional)* Your filled-in `athlete-profile.md` — or leave **both** `athlete-profile.md` and `season-goals.md` out initially so `coach-initial-intake` interviews you (in your preferred language) and generates both files for you.
 5. **Run a smoke test, then start your intake**
    - Ask Claude to read your last 7 days from intervals.icu, confirm all 6 skills are visible, and run `python3 coach_tools.py test`.
-   - Start your first real session: *"Initial intake: review my intervals.icu history and help me build my season."*
+   - Start your first real session in your preferred language (e.g. *"Initial intake: coach me in French, review my intervals.icu history, and help me build my profile and season."*).
    - Follow [docs/workflow-and-best-practices.md](docs/workflow-and-best-practices.md) for your pilot week, Sunday reviews, and optional Scheduled Tasks.
 
 ---
@@ -120,8 +125,8 @@ Zero external dependencies (Python 3 standard library only). Run `python3 tools/
 
 | Command | Purpose | Primary workflow |
 |---|---|---|
-| `targets` | Weekly block load targets (`3:1` / `2:1`, CTL ramp cap, recovery drop) & projected CTL/TSB | `coach-block-brief` |
-| `check-plan` | Sanity checks: load jumps, CTL ramp, taper, hard days, intensity split, running km & trail vert caps | `coach-block-brief`, `coach-season-revision` |
+| `targets` | Weekly block load targets (`3:1` / `2:1`, CTL ramp cap, recovery drop, `--camp-weeks` overload camps) & projected CTL/TSB | `coach-block-brief` |
+| `check-plan` | Sanity checks: load jumps, CTL ramp, `camp` recovery/intensity safety, taper, hard days, intensity split, running km & trail vert caps | `coach-block-brief`, `coach-season-revision` |
 | `rebalance` | Checks weekly totals and adjusts an easy session to land within ±5% of target load/duration | `coach-block-brief`, `coach-weekly-review` |
 | `lint` | Lints intervals.icu workout text (`cycling`, `running`, `trail`, `swimming`, `strength`), catches `400m` vs `400mtr` in swim, `% FTP`, parentheses, duration mismatches | `coach-block-brief`, `coach-weekly-review`, `coach-daily-adjustment` |
 | `wellness` | 7-day ln(rMSSD) HRV vs non-overlapping 28-day normal range, 7-day RHR trend & single-night spike, sleep | `coach-daily-adjustment`, `coach-weekly-review` |
@@ -132,7 +137,7 @@ Zero external dependencies (Python 3 standard library only). Run `python3 tools/
 | `css` | Swimming Critical Swim Speed (400 m + 200 m tests) → CSS (`min:sec/100m`) | `coach-block-review` |
 | `durability` | Fatigued vs fresh power-curve retention, status, and primary limiter | `coach-block-review` |
 | `progression` | Power-curve deltas across two equivalent periods | `coach-block-review` |
-| `test` | Runs the 60-assertion self-test suite | Setup & verification |
+| `test` | Runs the 65-assertion self-test suite | Setup & verification |
 
 ---
 

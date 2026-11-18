@@ -47,3 +47,6 @@ Unlike cycling or swimming, running subjects tendons, bones, and muscles to repe
 - Priority muscles: calves/soleus (primary impact absorbers), glutes/glute medius (pelvic stability), hamstrings, quads, core, and foot/ankle intrinsic stability.
 - Light plyometrics (pogo hops, jump rope, bounding): only outside injury return, pain-free, and introduced very gradually (strong evidence alongside heavy resistance training for running economy).
 - Track shoe rotation and mileage in intervals.icu once running > 30–40 km/week.
+
+## Environment & Logistics (Check at Intake & Brief)
+- Available surfaces (track, flat pavement, soft paths/parks, treadmill), local hills, weather/heat constraints, and shoe rotation.

@@ -16,6 +16,15 @@ In trail running, distance alone misses most of the stress: **vertical gain/loss
 - **Terrain specificity**: 6–8 weeks out from an A-race, align training terrain with the race's vertical-to-distance ratio (e.g. 50–70 m vert/km for alpine races).
 - **Cross-training (cycling/indoor trainer)**: high-ROI tool in trail running to build aerobic volume and durability without hammering legs with impact.
 
+## Vertical Gain Access & Flatlander Strategies (Check at Intake & Brief)
+Many trail runners do not live next to mountains. Always clarify local vertical access during intake and block briefs:
+- **Daily trail/mountain access**: spread vertical gain across 2–4 sessions/week and build terrain-specific descending resilience progressively.
+- **Weekend-only vertical access**: keep weekday runs focused on flat aerobic volume, threshold/VO2max, and eccentric strength; concentrate vertical gain and technical descending on weekend long runs.
+- **Flatlander (no nearby hills)**: do *not* prescribe unreachable weekly D+ targets. Combine:
+  - incline treadmill power-hiking (10–15% grade), stadium/building stairs, or repeated short local hills/parking ramps for climbing economy;
+  - targeted **eccentric quad strength** (slow-tempo split squats, step-downs, lunges) to compensate for missing downhill volume (note: incline treadmill alone builds climbing but provides *zero* eccentric downhill conditioning);
+  - occasional **mountain weekends or planned training camps (`camp` phase)** 4–10 weeks before an A-race to expose legs to real descents and technical terrain.
+
 ## Thresholds, Benchmarks & Progression
 - **Threshold test**: run on flat ground (CS/D' protocol in `running.md` with `coach_tools.py cs`) or track a standardized steady climb (e.g. 15–20 min on the same gradient → track vertical speed VAM in `m/h` and average HR).
 - **Benchmark sessions**:

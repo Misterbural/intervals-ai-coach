@@ -4,9 +4,9 @@
 
 Once your Claude Project, skills, and MCP connector are live, the system runs on four lightweight rhythms:
 
-1. **Initial Intake (`coach-initial-intake`)** — *once at startup (leave `season-goals.md` out of the Library)*
-   - Prompt: *"Initial intake: review my intervals.icu history and help me build my season."*
-   - Produces `season-goals.md` and updates `athlete-profile.md`.
+1. **Initial Intake (`coach-initial-intake`)** — *once at startup (leave `season-goals.md` — and optionally `athlete-profile.md` — out of the Library)*
+   - Prompt (in your preferred language): *"Initial intake: coach me in [Language], review my intervals.icu history, and help me build my profile and season."*
+   - Confirms language, environment/terrain access (e.g. trail vertical access, pool setup), goals, and constraints; produces `athlete-profile.md` and `season-goals.md`.
 2. **Block Brief (`coach-block-brief`)** — *every 3–6 weeks before a new training block*
    - Refreshes `science-watch.md` if due, locks schedule/constraints/targets, runs `coach_tools.py targets` + `check-plan`, writes full-block loads to the ATP, writes **Week 1 only** to the calendar, and opens the block's entry in `coaching-journal.md`.
 3. **Sunday Weekly Review (`coach-weekly-review`)** — *once a week (new chat thread per week)*

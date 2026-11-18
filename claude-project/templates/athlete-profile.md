@@ -1,16 +1,24 @@
 # Athlete Profile — [First Name]
 
-Customize this template and upload it to your Claude Project Library.
+> **Two ways to use this file:** customize it manually and upload it to your Claude Project Library, **or** skip it initially—`coach-initial-intake` will interview you and generate both `athlete-profile.md` and `season-goals.md` for you.
+
 Replace this file after major threshold tests, gear changes, injuries, or lasting schedule changes.
 
-## Physical Profile
+## Language & Physical Profile
+- **Preferred coaching language**: [e.g. English / Français / Español / Deutsch…]
 - Age, height, weight: [e.g. 32 yo, 1.78 m, 70 kg]
 
 ## Sports & Background
-- Primary sport(s): [e.g. cycling / running / trail / triathlon]
-- Active sport modules in this project: [e.g. cycling.md, running.md]
+- Primary sport(s): [e.g. cycling / running / trail / swimming / triathlon]
+- Active sport modules in this project: [e.g. cycling.md, running.md, swimming.md]
 - Training background: [e.g. 4 years of structured training, 1:32 half marathon, 150 km gran fondos...]
 - Typical weekly volume: [e.g. 5–7 h/week]
+
+## Environment & Terrain Access
+- **Local terrain & vertical access** (critical for trail/cycling): [e.g. flat city on weekdays + hills 45 min away on weekends / mountains at doorstep / flatlander with incline treadmill]
+- **Swimming access** (if applicable): [e.g. 25 m pool, masters club Tue/Thu, open water in summer, gear: pull buoy / paddles / fins]
+- **Running surfaces** (if applicable): [e.g. flat road, local track, soft park trails, treadmill]
+- **Indoor cycling setup** (if applicable): [e.g. direct-drive smart trainer, fan/cooling, summer room temperature, observed indoor/outdoor offset]
 
 ## Current Thresholds & Benchmarks by Sport
 *(Note whether each value is recent or pre-layoff/stale.)*

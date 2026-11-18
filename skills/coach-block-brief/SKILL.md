@@ -9,7 +9,7 @@ Principle: the entire block is designed upfront (structure, key sessions, weekly
 ## 1. Current Status
 - Read `season-goals.md`, the latest entry in `coaching-journal.md`, `science-watch.md`, `endurance-methodology.md`, and the active sport module(s).
 - Pull from intervals.icu: CTL, ATL, TSB, 7-day HRV/RHR, prior block compliance, and actual average weekly load over the last 4 weeks (plus weekly km / vertical gain if running/trail). Compare external load vs HR-based load (HRSS) if thresholds are uncalibrated.
-- Ask for upcoming on-call rotations, travel, races, and schedule constraints across the block.
+- Ask for upcoming on-call rotations, travel, races, **planned training camps (`camp` weeks)**, and schedule or terrain constraints across the block.
 
 ## 2. Science Watch (when due)
 - Run a targeted literature check if: (a) `science-watch.md` is still on baseline v0, (b) it has been more than 3–6 months since the last full review, or (c) the athlete is entering a new sport/event modality. Otherwise, briefly confirm existing benchmarks remain current.
@@ -26,7 +26,7 @@ Ask any missing questions, then present the brief for validation:
 
 ## 4. Block Plan
 Build per `endurance-methodology.md` and active sport modules, then present clearly week-by-week for validation:
-- weekly targets computed with `coach_tools.py targets` in a summary table: phase (`load` or `recovery`), target load with `▇` bar, hours, sessions, delta %, projected CTL & TSB;
+- weekly targets computed with `coach_tools.py targets` (using `--camp-weeks` if a planned training camp falls in this block) in a summary table: phase (`load`, `camp`, or `recovery`), target load with `▇` bar, hours, sessions, delta %, projected CTL & TSB;
 - CTL/TSB targets, zone distribution, max hard days per week (across all sports combined in multisport);
 - key sessions each week with rationale and progression (one variable at a time);
 - strength and mobility placement;
