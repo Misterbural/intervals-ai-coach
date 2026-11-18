@@ -40,6 +40,6 @@ Only after explicit approval:
 - write planned weekly loads for the whole block to the ATP;
 - check the MCP server's workout syntax resource;
 - validate Week 1 with `coach_tools.py rebalance` (±5% of target load and duration, adjusting an easy session only) and lint every single workout with `coach_tools.py lint --type <sport> --expected-duration <min>`;
-- write Week 1 workouts only, following "Writing to intervals.icu" (read range first, no duplicates, leave unrelated events untouched), using the clean 🎯 / 🍌 / 📋 header format, `VirtualRide` for indoor cycling, `mtr` for swimming distances, and separate `WeightTraining` events for strength;
-- summarize created events (date + title);
+- write Week 1 workouts only, following "Writing to intervals.icu" (read range first, no duplicates, leave unrelated events untouched), using the clean 🎯 / 🍌 / 📋 header format, `VirtualRide` for indoor cycling, `mtr` for swimming distances, explicit `HR`/`Pace` on run/trail/swim zones, and separate `WeightTraining` events for strength;
+- immediately read back the written Week 1 range from intervals.icu to verify stored dates, parsed durations/loads, and absence of duplicates, then summarize the verified events (date + title);
 - propose the "Block Opening" entry for `coaching-journal.md` containing the validated week-by-week plan (which `coach-weekly-review` will follow each Sunday).

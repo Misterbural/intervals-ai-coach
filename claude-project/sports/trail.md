@@ -38,19 +38,19 @@ Many trail runners do not live next to mountains. Always clarify local vertical 
 
 ## intervals.icu Workout Syntax (Trail)
 - Event type: `TrailRun` (or `Run` if your watch syncs everything as `Run`).
-- Prefer **duration + HR (`% LTHR` or `Z1–Z5`)** over raw pace, and specify vertical gain target and descent/pole cues in `📋 CUES`.
+- Prefer **duration + explicit HR (`% LTHR` or `Z1 HR`–`Z5 HR`)** rather than raw pace or bare zones, and specify vertical gain target and descent/pole cues in `📋 CUES`.
 - Lint before writing: `coach_tools.py lint --type trail --expected-duration <min>`.
 - Example steps:
   ```text
   Warmup
-  - 20m Z1-Z2
+  - 20m Z1-Z2 HR
 
   Sustained climbs 4x
   - 6m 85-92% LTHR
-  - 4m Z1
+  - 4m Z1 HR
 
   Cooldown
-  - 15m Z1
+  - 15m Z1 HR
   ```
 
 ## Trail-Specific Strength & Mobility

@@ -3,11 +3,11 @@
 Upload this file to your Claude Project Library alongside `endurance-methodology.md` and `running.md` if you train for HYROX (Open, Pro, Doubles, or Relay) or hybrid running/functional-fitness racing.
 
 ## Scientific Foundation (Evidence-Based Framing)
-Peer-reviewed data on full HYROX competition (Brandt et al., *Frontiers in Physiology* 2025) establishes HYROX as an **interval-based endurance sport under heavy localized muscular fatigue**, not a pure strength competition:
-- **Time split**: ~59% of total race time is spent **running** (8 × 1 km) vs ~38% on the **8 functional stations** (+ Roxzone transitions).
-- **Physiological intensity**: ~80% of race time is spent at *very hard* HR intensity and ~20% at *hard* intensity; blood lactate spikes higher on stations (median ~8.5 mmol/L, peaking on Wall Balls) than on runs (~7.7 mmol/L).
-- **Performance determinants**: higher **VO2max** and **endurance training volume** strongly predict faster finish times, whereas isolated grip strength or general resistance-training volume alone does not.
-- **Concurrent training (Schumann et al. 2022)**: endurance training does not blunt maximal strength gains when sensibly programmed, but explosive power suffers if heavy strength and high-intensity endurance are stacked without spacing (aim for ≥ 3–6 h separation or separate days).
+Early peer-reviewed data from a **simulated HYROX race on 11 amateur athletes** (Brandt et al., *Frontiers in Physiology* 2025; low evidence level due to small sample size and simulated setting, to be updated as larger competition studies emerge) frames HYROX as an **interval-based endurance event under heavy localized muscular fatigue**, rather than a pure strength competition:
+- **Time split (in that cohort)**: ~59% of total time (~51.2 min) was spent **running** (8 × 1 km) vs ~38% (~32.8 min) on the **8 functional stations** (+ Roxzone transitions, median total 86.5 min).
+- **Physiological intensity**: ~80% of time was spent at *very hard* HR intensity and ~20% at *hard* intensity; blood lactate peaked higher on stations (median ~8.5 mmol/L, highest on Wall Balls) than on runs (~7.7 mmol/L).
+- **Correlates of performance (small cohort)**: higher **VO2max** and **endurance training volume** correlated with faster finish times, whereas isolated grip strength or general resistance-training volume did not.
+- **Concurrent training (Schumann et al., *Sports Med* 2022; moderate evidence)**: endurance training does not blunt maximal strength gains when sensibly programmed, but explosive power suffers if heavy strength and high-intensity endurance are stacked without spacing (aim for ≥ 3–6 h separation or separate days).
 
 ## Official Divisions & Station Standards
 *(Sled Push and Sled Pull weights include the sled itself.)*
@@ -35,10 +35,10 @@ intervals.icu excels at tracking your running load, Concept2 ergs, CTL/ATL/TSB, 
 Avoid the classic HYROX trap of doing maximal "Metcon / HYROX circuits" 4 times per week (high fatigue, poor aerobic progression, injury risk). Build across **four distinct pillars**:
 
 1. **Aerobic & Threshold Running Engine (largest share of training time)**
-   - Follow `running.md`: 70–80% easy aerobic running (Z1–Z2), threshold cruise intervals (developing lactate clearance at/near HYROX run pace), and phase-appropriate VO2max work. Respect running mileage progression caps (`run_km` ≤ +15%).
+   - Follow `running.md`: 70–80% easy aerobic running (Z1–Z2), threshold cruise intervals (developing lactate clearance at/near HYROX run pace), and phase-appropriate VO2max work. Guard single-session distance spikes (`longest_run_km` ≤ +10% vs prior 30-day max, Frandsen et al. *BJSM* 2025) alongside the weekly `run_km` heuristic.
 2. **Erg Efficiency (SkiErg & RowErg)**
    - Sync Concept2 ErgData directly to intervals.icu (pace/500 m, watts, HR).
-   - **Pacing discipline**: racing 1,000 m SkiErg or RowErg 5 s/500 m too fast saves ~10 seconds on the erg and costs 30–90 seconds across subsequent runs. Target sustainable threshold/race-specific pacing (typically 2–5 s/500 m slower than 2k PR, smooth stroke rate, low tension).
+   - **Pacing discipline (coaching field heuristic)**: over-cooking 1,000 m SkiErg or RowErg by several seconds per 500 m saves very little time on the erg while disproportionately hurting subsequent runs. Target sustainable threshold/race-specific pacing (as a rough starting heuristic, ~2–5 s/500 m slower than 2k PR, smooth stroke rate, low tension—calibrate on simulations).
 3. **Strength & Station Capacity (phased)**
    - *Base*: heavy foundational strength (squat/hinge/push/pull/loaded carry, 2×/week) + technical station mechanics at low fatigue (sled body angle, rope pull hip drive, burpee step-up rhythm, full-depth wall balls to avoid no-reps).
    - *Build*: transition to strength-endurance and race-weight (+10–20% overload on sleds for reserve) station sets under moderate fatigue.
@@ -52,11 +52,11 @@ Cap total high-stress sessions at **2–3/week across running + compromised runn
 ## Benchmarking, Analysis & Race Diagnostics
 - **Running threshold**: Critical Speed (`coach_tools.py cs`) every 6–8 weeks (see `running.md`).
 - **Erg benchmarks**: 1,000 m or 2,000 m SkiErg & RowErg time trials (or standardized 5 × 500 m @ fixed pace/HR).
-- **HYROX simulation / race analysis**: run `coach_tools.py hyrox` on the 8 × 1 km run splits (+ station times, Roxzone, and fresh CS threshold pace) to quantify:
+- **HYROX simulation / race analysis**: run `coach_tools.py hyrox` on the 8 × 1 km run splits (+ station times, Roxzone, and fresh CS threshold pace) to quantify (using transparent coaching field heuristics, not peer-reviewed cutoffs):
   - exact **Run % vs Station % vs Roxzone %** breakdown;
-  - **Run 1 over-pacing** (flag if Run 1 is > 10 s/km faster than Runs 2–8 mean);
+  - **Run 1 over-pacing** (field heuristic: flag if Run 1 is > 10 s/km faster than Runs 2–8 mean);
   - **1st-half vs 2nd-half run decay** and **compromised-running penalty** vs fresh threshold pace;
-  - **post-station fade hotspots** (typically Run 3 post-Sled Push, Run 5 post-Burpees, Run 8 post-Sandbag Lunges).
+  - **post-station fade hotspots** (typically Run 3 post-Sled Push, Run 5 post-Burpees, Run 8 post-Sandbag Lunges) and Roxzone share (field heuristic: > 8% flags easy transition savings).
 
 ## Gym Equipment & Substitutions (Check at Intake & Brief)
 Always clarify equipment access during intake and block briefs:

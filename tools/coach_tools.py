@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """coach_tools.py: deterministic endurance coaching calculations for intervals.icu.
 
-Version 2.3. Python 3 standard library only (zero external dependencies).
+Version 2.4. Python 3 standard library only (zero external dependencies).
 Supports cycling, running, trail running, swimming, triathlon, and HYROX.
 Implements the rules in endurance-methodology.md and sports/*.md; if a
 discrepancy ever exists, the methodology takes precedence and this script
@@ -35,7 +35,7 @@ import statistics
 import sys
 from datetime import date, timedelta
 
-VERSION = "2.3"
+VERSION = "2.4"
 K_CTL = 1 / 42  # fitness time constant (days)
 K_ATL = 1 / 7   # fatigue time constant (days)
 BAR_MAX = 20
@@ -584,11 +584,11 @@ def cmd_hyrox(args):
         print(f"Compromised-running penalty vs threshold pace: "
               f"{r['compromised_penalty_s']:+.0f} s/km ({r['compromised_penalty_pct']:+.1f}%)")
     if r["flags"]:
-        print("Diagnostics:")
+        print("Diagnostics (coaching field heuristics, not peer-reviewed cutoffs):")
         for fl in r["flags"]:
             print("  - " + fl)
     else:
-        print("Diagnostics: well-paced run splits and transitions.")
+        print("Diagnostics (coaching field heuristics): well-paced run splits and transitions.")
 
 
 # ---------------------------------------------------------------- workout linter
@@ -715,6 +715,15 @@ def lint_workout(text, workout_type="cycling", expected_duration=None):
             errors.append(f"line {num}: step missing intensity anchor ('{line}')")
         elif len(anchors) > 1:
             errors.append(f"line {num}: multiple intensities on one step ({', '.join(anchors)})")
+        elif workout_type in ("running", "trail", "swimming"):
+            # Bare Z1-Z5 without explicit HR or Pace relies on default sport settings
+            for idx_t, t in enumerate(tokens):
+                if re.fullmatch(r"[Zz]\d(?:-[Zz]?\d)?", t):
+                    nxt = tokens[idx_t + 1].lower() if idx_t + 1 < len(tokens) else ""
+                    if nxt not in ("hr", "lthr", "pace", "power"):
+                        warnings.append(
+                            f"line {num}: bare zone '{t}' in {workout_type}; specify '{t} HR' or '{t} Pace' explicitly"
+                        )
         if RE_PAREN.search(line):
             errors.append(f"line {num}: absolute target in parentheses, remove it ('{line}')")
         total += durs[0] * repeat
@@ -1119,15 +1128,42 @@ def check_plan(plan):
         add("Long event: longest session >= 60% of event (6h cap), 2-5 weeks before race",
             "OK" if ok else "WARN", f"{mx:.0f} min, {weeks_out} week(s) out", "coaching convention")
 
-    # 10a. Running single-session long-run spike (Frandsen et al., BJSM 2025)
+    # 10a. Running single-session long-run spike vs prior 30-day max (Frandsen et al., BJSM 2025)
     if any("longest_run_km" in w for w in weeks):
         lrs = [w.get("longest_run_km", 0) for w in weeks]
-        bad_lr = [i + 1 for i in range(1, len(lrs))
-                  if lrs[i] > 0 and max(lrs[max(0, i - 4):i]) > 0
-                  and lrs[i] > 1.10 * max(lrs[max(0, i - 4):i])]
-        add("Running: single longest run <= +10% vs max of previous 4 weeks (~30 days)",
-            "WARN" if bad_lr else "OK", f"weeks {bad_lr}" if bad_lr else "",
-            "Frandsen et al., BJSM 2025")
+        prev_lr = plan.get("prev_longest_run_km")
+        if prev_lr is None:
+            bad_lr = [i + 1 for i in range(1, len(lrs))
+                      if lrs[i] > 0 and max(lrs[max(0, i - 4):i]) > 0
+                      and lrs[i] > 1.10 * max(lrs[max(0, i - 4):i])]
+            detail = "prev_longest_run_km missing (week 1 unchecked vs real 30-day history)"
+            if bad_lr:
+                detail += f"; internal spikes in weeks {bad_lr}"
+            add("Running: single longest run <= +10% vs max of previous 30 days",
+                "WARN", detail, "Frandsen et al., BJSM 2025")
+        elif prev_lr == 0:
+            bad_lr = [i + 1 for i in range(1, len(lrs))
+                      if lrs[i] > 0 and max(lrs[max(0, i - 4):i]) > 0
+                      and lrs[i] > 1.10 * max(lrs[max(0, i - 4):i])]
+            detail = "no recent running baseline (prev_longest_run_km = 0): keep early long runs conservative"
+            if bad_lr:
+                detail += f"; spikes in weeks {bad_lr}"
+            add("Running: single longest run <= +10% vs max of previous 30 days",
+                "WARN", detail, "Frandsen et al., BJSM 2025")
+        else:
+            bad_lr = []
+            for i, km in enumerate(lrs):
+                if km <= 0:
+                    continue
+                window = lrs[max(0, i - 4):i]
+                if i < 4:
+                    window = [prev_lr] + window
+                ref_max = max(window) if window else prev_lr
+                if ref_max > 0 and km > 1.10 * ref_max:
+                    bad_lr.append(i + 1)
+            add("Running: single longest run <= +10% vs max of previous 30 days",
+                "WARN" if bad_lr else "OK", f"weeks {bad_lr}" if bad_lr else "",
+                "Frandsen et al., BJSM 2025")
 
     # 10b. Running weekly mileage heuristic (low-evidence guardrail)
     if any("run_km" in w for w in weeks):
@@ -1197,7 +1233,7 @@ Threshold 3x
 - 3m 75% Pace
 
 Cooldown
-- 10m Z1
+- 10m Z1 HR
 """
 
 SAMPLE_SWIMMING = """🎯 GOAL: CSS threshold repeats
@@ -1208,14 +1244,14 @@ During: bottle on pool deck
 📋 CUES: long stroke, steady pacing
 
 Warmup
-- 300mtr Z1
+- 300mtr Z1 Pace
 
 Main set 4x
 - 200mtr 100% Pace
 - 30s rest
 
 Cooldown
-- 200mtr Z1
+- 200mtr Z1 Pace
 """
 
 
@@ -1297,9 +1333,11 @@ def run_self_test():
     r = lint_workout(SAMPLE_CYCLING, "cycling", 73)
     ok(not r["errors"] and r["duration_min"] == 73, f"valid cycling: {r}")
     r = lint_workout(SAMPLE_RUNNING, "running", 58)
-    ok(not r["errors"] and r["duration_min"] == 58, f"valid running: {r}")
+    ok(not r["errors"] and not r["warnings"] and r["duration_min"] == 58, f"valid running: {r}")
+    r = lint_workout(SAMPLE_RUNNING.replace("Z1 HR", "Z1"), "running", 58)
+    ok(not r["errors"] and any("bare zone" in w for w in r["warnings"]), f"bare Z1 in running warns: {r}")
     r = lint_workout(SAMPLE_SWIMMING, "swimming")
-    ok(not r["errors"] and r["has_distance_steps"], f"valid swimming: {r}")
+    ok(not r["errors"] and not r["warnings"] and r["has_distance_steps"], f"valid swimming: {r}")
     r = lint_workout(SAMPLE_SWIMMING.replace("300mtr", "300m"), "swimming")
     ok(any("300mtr" in e for e in r["errors"]), "ambiguous 300m in swim caught")
     r = lint_workout(SAMPLE_CYCLING.replace("- 8m 88-92%", "- 8m 88% (228w)"))
@@ -1394,19 +1432,36 @@ def run_self_test():
     ]})
     ok(any(c["check"].startswith("Long event") and c["status"] == "OK" for c in r), f"last long session: {r}")
 
-    # Running single-session long-run cap (Frandsen 2025), weekly km, and trail vertical gain caps
-    r = check_plan({"start_ctl": 30, "weeks": [
-        {"load": 250, "run_km": 40, "longest_run_km": 16, "vert_m": 800},
+    # Running single-session long-run cap (Frandsen 2025 with prev_longest_run_km), weekly km, and trail vert
+    r = check_plan({"start_ctl": 30, "prev_longest_run_km": 16, "weeks": [
+        {"load": 250, "run_km": 40, "longest_run_km": 17, "vert_m": 800},
         {"load": 270, "run_km": 52, "longest_run_km": 20, "vert_m": 1200},
     ]})
-    ok(any("single longest run" in c["check"] and c["status"] == "WARN" for c in r), "longest run > +10% warns")
+    ok(any("single longest run" in c["check"] and c["status"] == "WARN" and "2" in c["detail"] for c in r),
+       f"week 2 longest run > +10% warns: {r}")
     ok(any("weekly km" in c["check"] and c["status"] == "WARN" for c in r), "running km jump")
     ok(any("Trail:" in c["check"] and c["status"] == "WARN" for c in r), "trail vert jump")
-    r_ok = check_plan({"start_ctl": 30, "weeks": [
-        {"load": 250, "longest_run_km": 16},
-        {"load": 265, "longest_run_km": 17.5},
+
+    # Week 1 exceeds prev_longest_run_km by > +10%
+    r_w1 = check_plan({"start_ctl": 30, "prev_longest_run_km": 12, "weeks": [{"load": 250, "longest_run_km": 15}]})
+    ok(any("single longest run" in c["check"] and c["status"] == "WARN" and "1" in c["detail"] for c in r_w1),
+       f"week 1 vs prev_longest_run_km caught: {r_w1}")
+
+    # Missing prev_longest_run_km or 0 baseline warns
+    r_miss = check_plan({"start_ctl": 30, "weeks": [{"load": 250, "longest_run_km": 15}]})
+    ok(any("single longest run" in c["check"] and c["status"] == "WARN" and "missing" in c["detail"] for c in r_miss),
+       f"missing prev_longest_run_km warns: {r_miss}")
+    r_zero = check_plan({"start_ctl": 30, "prev_longest_run_km": 0, "weeks": [{"load": 250, "longest_run_km": 10}]})
+    ok(any("single longest run" in c["check"] and c["status"] == "WARN" and "no recent running baseline" in c["detail"] for c in r_zero),
+       f"zero baseline warns: {r_zero}")
+
+    # Valid progression with prev_longest_run_km
+    r_ok = check_plan({"start_ctl": 30, "prev_longest_run_km": 16, "weeks": [
+        {"load": 250, "longest_run_km": 17},
+        {"load": 265, "longest_run_km": 18.5},
     ]})
-    ok(any("single longest run" in c["check"] and c["status"] == "OK" for c in r_ok), "longest run <= +10% OK")
+    ok(any("single longest run" in c["check"] and c["status"] == "OK" for c in r_ok),
+       f"longest run <= +10% OK: {r_ok}")
 
     # Training camp weeks in targets and check-plan
     res = compute_targets(300, 45, 45, 4, "3:1", 0.10, 5, 0.35, camp_weeks=[3], camp_factor=1.5)
@@ -1567,7 +1622,7 @@ def main():
     c.set_defaults(f=cmd_project)
 
     c = sp.add_parser("check-plan", help="sanity checks on a block or season plan")
-    c.add_argument("--json", help='{"start_ctl": 25, "max_ctl_ramp": 5, "event_duration_min": 480, "weeks": '
+    c.add_argument("--json", help='{"start_ctl": 25, "max_ctl_ramp": 5, "prev_longest_run_km": 16, "event_duration_min": 480, "weeks": '
                                   '[{"load": 220, "phase": "load|recovery|taper", "hard_days": 2, "sessions": 4, '
                                   '"longest_session_min": 90, "easy_pct": 80, "above_threshold_pct": 5, '
                                   '"run_km": 45, "longest_run_km": 18, "vert_m": 1000}]}')

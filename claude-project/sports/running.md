@@ -4,7 +4,7 @@ Upload this file to your Claude Project Library alongside `endurance-methodology
 
 ## Core Constraint: Mechanical Impact Load
 Unlike cycling or swimming, running subjects tendons, bones, and muscles to repetitive ground impact. **Aerobic fitness often outpaces musculoskeletal tissue tolerance**—especially during a return to running or for cyclists crossing over.
-- **Guard single-session distance spikes first (Frandsen et al., *BJSM* 2025)**: in a 5,205-runner cohort (> 588,000 sessions), exceeding your **longest single run of the previous 30 days by more than 10%** strongly increased overuse injury risk (+64% for a 10–30% spike; +128% when doubling). Track `longest_run_km` in `coach_tools.py check-plan` so no single run jumps > +10% above your recent 30-day max.
+- **Guard single-session distance spikes first (Frandsen et al., *BJSM* 2025)**: in a 5,205-runner cohort (> 588,000 sessions), exceeding your **longest single run of the previous 30 days by more than 10%** strongly increased overuse injury risk (+64% for a 10–30% spike; +128% when doubling). Always pass `"prev_longest_run_km"` (actual longest run in the past 30 days) alongside weekly `"longest_run_km"` in `coach_tools.py check-plan` so Week 1 and every subsequent week stay within +10% of the prior 30-day max.
 - **Weekly mileage progression (low-evidence heuristic)**: keeping weekly distance (`run_km`) within +10–15% of the prior 3-week max remains a sensible conservative guardrail alongside the single-session cap, though weekly totals alone have weak predictive evidence compared to single-session spikes.
 - **CTL ramp**: cap at **+3 to +5 pts/week** in pure running (lower than cycling).
 - **Frequency before length**: when building volume safely, add a short easy run before abruptly extending the long run.
@@ -29,7 +29,7 @@ Unlike cycling or swimming, running subjects tendons, bones, and muscles to repe
 
 ## intervals.icu Workout Syntax (Running)
 - Event type: `Run`.
-- Intensities: `% Pace` (threshold pace, e.g. `95-100% Pace`), `% LTHR` / `% HR` (e.g. `72-78% LTHR`), or zones `Z1`–`Z5`. Do not mix two intensity metrics on the same step.
+- Intensities: `% Pace` (threshold pace, e.g. `95-100% Pace`), `% LTHR` / `% HR` (e.g. `72-78% LTHR`), or **explicit** zone targets (`Z1 HR`, `Z2 Pace`—avoid bare `Z1` without `HR` or `Pace`, which relies on default sport settings). Do not mix two intensity metrics on the same step.
 - Lint before writing: `coach_tools.py lint --type running --expected-duration <min>`.
 - Example steps:
   ```text
@@ -41,7 +41,7 @@ Unlike cycling or swimming, running subjects tendons, bones, and muscles to repe
   - 3m 75% Pace
 
   Cooldown
-  - 10m Z1
+  - 10m Z1 HR
   ```
 
 ## Running-Specific Fueling & Hydration

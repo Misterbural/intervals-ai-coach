@@ -1,6 +1,6 @@
 # Endurance Training Methodology: Coach Reference
 
-Core reference methodology for endurance sports (cycling, running, trail running, triathlon).
+Core reference methodology for endurance sports (cycling, running, trail running, swimming, triathlon, and HYROX).
 Pair this file with the active sport module(s) from `sports/*.md`. When updated, `science-watch.md` takes precedence.
 
 ## Principles
@@ -87,7 +87,7 @@ Any combination of sport modules (e.g. `cycling.md` + `running.md`, `trail.md` +
 - Never alter races, notes, unrelated events, or past dates unless explicitly asked.
 - Deletion: only when explicitly requested or approved, naming the exact events and dates.
 - Pre-write lint: validate every workout with `coach_tools.py lint` (specifying `--type` and `--expected-duration`).
-- Post-write summary: list created/updated events (date + title); report any error verbatim.
+- Post-write read-back verification: immediately read back the written date range from intervals.icu to confirm the actual stored dates, parsed durations/loads, and absence of duplicates or syntax truncation; report any discrepancy or error verbatim, then summarize created/updated events (date + title).
 
 ## Workout Formatting
 - Use intervals.icu text workout syntax (check the MCP server's syntax resource and the relevant `sports/*.md` module).

@@ -19,7 +19,7 @@ Naive "chat with an LLM about my workouts" setups fail in predictable ways: hall
 
 This repository addresses each failure mode explicitly:
 
-- **Deterministic math (`tools/coach_tools.py`)**: intervals.icu remains the sole source of truth for CTL, ATL, TSB, eFTP, and curves. Every other calculation—block load targets (including planned `camp` overload weeks), ±5% weekly rebalancing, Foster monotony/strain, CP/W', Critical Speed/D', CSS, HYROX compromised-running split diagnostics, HRV/RHR readiness flags, fatigued-curve durability, plan sanity checks, and intervals.icu workout linting—runs in a zero-dependency Python 3 script with **74 built-in unit tests**.
+- **Deterministic math (`tools/coach_tools.py`)**: intervals.icu remains the sole source of truth for CTL, ATL, TSB, eFTP, and curves. Every other calculation—block load targets (including planned `camp` overload weeks), ±5% weekly rebalancing, Foster monotony/strain, CP/W', Critical Speed/D', CSS, HYROX compromised-running split diagnostics, HRV/RHR readiness flags, fatigued-curve durability, plan sanity checks, and intervals.icu workout linting—runs in a zero-dependency Python 3 script with **78 built-in unit tests**.
 - **Modular multi-sport & cross-training design**: a lean endurance core (`endurance-methodology.md`, including cross-sport load & hard-day budgeting) paired with drop-in sport modules (`cycling.md`, `running.md`, `trail.md`, `swimming.md`, `triathlon.md`, `hyrox.md`)—plus support for custom modules (`sports/<your-sport>.md`). Mix and match freely (e.g. `cycling.md` + `running.md` for cross-training or dual-sport balance without triathlon) so your coach loads only the physiology, terrain/gym constraints, and workout syntax relevant to your sports.
 - **Lazy-loaded workflows (`skills/`)**: 6 focused `SKILL.md` procedures (initial intake, season revision, block brief, Sunday weekly review, daily adjustment, end-of-block review) keep project instructions concise and execution reliable.
 - **Human-in-the-loop & anti-sycophancy**: strict decision hierarchy (medical/pain > validated plan > thresholds > progression), "can vs should" rule (feeling fresh never overrides a recovery week), mandatory approval before every calendar write, and a built-in monthly critical self-review.
@@ -86,7 +86,7 @@ Wearables / Bike Computer / Trainer (direct sync, not via Strava)
 │   ├── coach-daily-adjustment/SKILL.md
 │   └── coach-block-review/SKILL.md
 ├── tools/
-│   └── coach_tools.py                       # Deterministic CLI (Python 3 stdlib only, 74 self-tests)
+│   └── coach_tools.py                       # Deterministic CLI (Python 3 stdlib only, 78 self-tests)
 └── scripts/
     └── build_skills_zip.py                  # Validates SKILL.md files and builds dist/skills/*.zip
 ```
@@ -141,7 +141,7 @@ Zero external dependencies (Python 3 standard library only). Run `python3 tools/
 | `hyrox` | HYROX split & compromised-running analyzer (run vs station %, Run 1 over-pacing, fade vs CS) | `coach-block-review` |
 | `durability` | Fatigued vs fresh power-curve retention, status, and primary limiter | `coach-block-review` |
 | `progression` | Power-curve deltas across two equivalent periods | `coach-block-review` |
-| `test` | Runs the 74-assertion self-test suite | Setup & verification |
+| `test` | Runs the 78-assertion self-test suite | Setup & verification |
 
 ---
 

@@ -29,14 +29,14 @@ Unlike cycling or running, **hydrodynamic drag dominates energy cost** in swimmi
 ## intervals.icu Workout Syntax (Swimming)
 - Event type: `Swim`.
 - **Critical intervals.icu rule**: always write swim distances with **`mtr`** (e.g. `400mtr`, `100mtr`), **never `400m`** (which intervals.icu parses as 400 minutes!). `coach_tools.py lint --type swimming` catches this automatically.
-- Intensities: `% Pace` (% of CSS), `Z1`–`Z5`, or `rest` for interval recoveries.
+- Intensities: `% Pace` (% of CSS), **explicit** pace/HR zones (`Z1 Pace`–`Z5 Pace` or `Z1 HR`), or `rest` for interval recoveries.
 - Example steps:
   ```text
   Warmup
-  - 300mtr Z1
+  - 300mtr Z1 Pace
 
   Drills 4x
-  - 50mtr Z2
+  - 50mtr Z2 Pace
   - 15s rest
 
   Main set 6x
@@ -44,7 +44,7 @@ Unlike cycling or running, **hydrodynamic drag dominates energy cost** in swimmi
   - 30s rest
 
   Cooldown
-  - 200mtr Z1
+  - 200mtr Z1 Pace
   ```
 
 ## Swimming-Specific Fueling & Hydration
