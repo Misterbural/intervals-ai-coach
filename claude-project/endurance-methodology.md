@@ -119,7 +119,8 @@ Pair this file with the active sport module(s) from `sports/*.md`. When updated,
 - **Green** (0 flags): execute as planned, without adding extra work ("Can vs should").
 - **Amber** (1 flag: 7d HRV below range, RHR flag, sleep < 6 h, fatigue/soreness ≥ 3, heavy legs or abnormal warmup RPE): keep key session only if warmup feels normal, otherwise swap to easy endurance; add no volume.
 - **Amber+** (2 flags): short easy endurance, push key session back 1–2 days.
-- **Red** (illness, injury-related pain, or 7d HRV below range 3–4 consecutive days with poor feel): rest or very easy Z1 ≤ 45 min; persistent pain → doctor/physio.
+- **Red — Pain, Injury, or Illness** (injury-related pain, localized tendon/bone pain, or fever/systemic illness): **full stop / rest (no Z1 session)**; consult a doctor or physiotherapist.
+- **Red — Accumulated Fatigue** (7d HRV below range 3–4 consecutive days with poor feel, *no pain or illness*): rest or optional very easy Z1 ≤ 45 min.
 - Missed key session: never "make it up" the next day; retry in 3–4 days if Green.
 
 ## Session Analysis

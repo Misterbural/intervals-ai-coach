@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """coach_tools.py: deterministic endurance coaching calculations for intervals.icu.
 
-Version 2.2. Python 3 standard library only (zero external dependencies).
+Version 2.3. Python 3 standard library only (zero external dependencies).
 Supports cycling, running, trail running, swimming, triathlon, and HYROX.
 Implements the rules in endurance-methodology.md and sports/*.md; if a
 discrepancy ever exists, the methodology takes precedence and this script
@@ -35,7 +35,7 @@ import statistics
 import sys
 from datetime import date, timedelta
 
-VERSION = "2.2"
+VERSION = "2.3"
 K_CTL = 1 / 42  # fitness time constant (days)
 K_ATL = 1 / 7   # fatigue time constant (days)
 BAR_MAX = 20
@@ -1119,14 +1119,24 @@ def check_plan(plan):
         add("Long event: longest session >= 60% of event (6h cap), 2-5 weeks before race",
             "OK" if ok else "WARN", f"{mx:.0f} min, {weeks_out} week(s) out", "coaching convention")
 
-    # 10. Running mechanical volume cap
+    # 10a. Running single-session long-run spike (Frandsen et al., BJSM 2025)
+    if any("longest_run_km" in w for w in weeks):
+        lrs = [w.get("longest_run_km", 0) for w in weeks]
+        bad_lr = [i + 1 for i in range(1, len(lrs))
+                  if lrs[i] > 0 and max(lrs[max(0, i - 4):i]) > 0
+                  and lrs[i] > 1.10 * max(lrs[max(0, i - 4):i])]
+        add("Running: single longest run <= +10% vs max of previous 4 weeks (~30 days)",
+            "WARN" if bad_lr else "OK", f"weeks {bad_lr}" if bad_lr else "",
+            "Frandsen et al., BJSM 2025")
+
+    # 10b. Running weekly mileage heuristic (low-evidence guardrail)
     if any("run_km" in w for w in weeks):
         kms = [w.get("run_km", 0) for w in weeks]
         bad_km = [i + 1 for i in range(1, len(kms))
                   if kms[i] > 0 and max(kms[max(0, i - 3):i]) > 0
                   and kms[i] > 1.15 * max(kms[max(0, i - 3):i])]
-        add("Running: weekly km <= +15% vs highest of previous 3 weeks (mechanical load)",
-            "WARN" if bad_km else "OK", f"weeks {bad_km}" if bad_km else "", "running mechanical progression")
+        add("Running: weekly km <= +15% vs highest of previous 3 weeks (low-evidence heuristic)",
+            "WARN" if bad_km else "OK", f"weeks {bad_km}" if bad_km else "", "coaching heuristic")
 
     # 11. Trail vertical gain cap
     if any("vert_m" in w for w in weeks):
@@ -1384,13 +1394,19 @@ def run_self_test():
     ]})
     ok(any(c["check"].startswith("Long event") and c["status"] == "OK" for c in r), f"last long session: {r}")
 
-    # Running km and trail vertical gain caps
+    # Running single-session long-run cap (Frandsen 2025), weekly km, and trail vertical gain caps
     r = check_plan({"start_ctl": 30, "weeks": [
-        {"load": 250, "run_km": 40, "vert_m": 800},
-        {"load": 270, "run_km": 52, "vert_m": 1200},
+        {"load": 250, "run_km": 40, "longest_run_km": 16, "vert_m": 800},
+        {"load": 270, "run_km": 52, "longest_run_km": 20, "vert_m": 1200},
     ]})
-    ok(any("Running:" in c["check"] and c["status"] == "WARN" for c in r), "running km jump")
+    ok(any("single longest run" in c["check"] and c["status"] == "WARN" for c in r), "longest run > +10% warns")
+    ok(any("weekly km" in c["check"] and c["status"] == "WARN" for c in r), "running km jump")
     ok(any("Trail:" in c["check"] and c["status"] == "WARN" for c in r), "trail vert jump")
+    r_ok = check_plan({"start_ctl": 30, "weeks": [
+        {"load": 250, "longest_run_km": 16},
+        {"load": 265, "longest_run_km": 17.5},
+    ]})
+    ok(any("single longest run" in c["check"] and c["status"] == "OK" for c in r_ok), "longest run <= +10% OK")
 
     # Training camp weeks in targets and check-plan
     res = compute_targets(300, 45, 45, 4, "3:1", 0.10, 5, 0.35, camp_weeks=[3], camp_factor=1.5)
@@ -1554,7 +1570,7 @@ def main():
     c.add_argument("--json", help='{"start_ctl": 25, "max_ctl_ramp": 5, "event_duration_min": 480, "weeks": '
                                   '[{"load": 220, "phase": "load|recovery|taper", "hard_days": 2, "sessions": 4, '
                                   '"longest_session_min": 90, "easy_pct": 80, "above_threshold_pct": 5, '
-                                  '"run_km": 45, "vert_m": 1000}]}')
+                                  '"run_km": 45, "longest_run_km": 18, "vert_m": 1000}]}')
     c.add_argument("--file")
     c.add_argument("--json-out", action="store_true")
     c.set_defaults(f=cmd_check_plan)

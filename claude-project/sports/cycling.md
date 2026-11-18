@@ -47,7 +47,7 @@ Upload this file to your Claude Project Library alongside `endurance-methodology
 ## Cycling-Specific Fueling & Hydration
 In addition to the core carbohydrate tiers in `endurance-methodology.md`:
 - **High gut tolerance**: because cycling is seated with minimal impact, liquid bottle mixes + gels/bars make it much easier to hit 60–90 g/h on rides > 2–2.5 h (and progressively train toward 90–120 g/h if targeting long gran fondos or ultras).
-- **Indoor trainer heat**: indoor sessions typically produce higher sweat rates than outdoors even with a fan—always pair airflow with sodium-rich fluids and plan ≥ 750–1,000 ml/h in warm rooms.
+- **Indoor trainer heat**: indoor sessions typically produce higher sweat rates than outdoors even with a fan—base fluid intake on your **measured sweat rate** (pre/post-ride weigh-ins, aiming to limit dehydration without overdrinking hypotonic fluids), paired with sodium-rich fluids and strong airflow.
 - **Bottle planning**: specify bottle count, refill stops, and g/h targets in the `🍌 FUELING` header on long rides and durability sessions.
 
 ## Cycling-Specific Strength & Mobility

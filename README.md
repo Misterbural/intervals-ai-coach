@@ -5,9 +5,11 @@
 
 **An AI endurance coach connected directly to [intervals.icu](https://intervals.icu) via MCP** — built for **cycling, running, trail running, swimming, triathlon, and HYROX**, combining structured sports-science methodology, deterministic Python tooling, modular Claude Skills, and a hardened self-hosted deployment guide.
 
+> **Project status (honest disclaimer):** **Experimental.** The VPS + Cloudflare Access OAuth + MCP + Claude Project + Skills pipeline has been verified at installation for **cycling** (prior to running a full live pilot block). The additional sport modules (`running`, `trail`, `swimming`, `triathlon`, `hyrox`), training-camp rules, and `coach_tools.py` calculators (`cs`, `css`, `hyrox`, `check-plan`) are unit-tested in CI but have **not yet been field-tested** in live training blocks. Feedback and PRs are welcome!
+>
 > **Use in Any Language:** The repository is written in English for broad accessibility, but **your coach works in your native language** (French, Spanish, German, Italian, etc.). Simply tell the coach your preferred language at the start of the initial intake (or set it in `athlete-profile.md`)—all chats, generated files, and intervals.icu workout titles/descriptions will follow your language while keeping intervals.icu syntax valid.
 >
-> **Platform compatibility:** Designed and tested turnkey for **Claude** (Projects, Library files, Skills, remote OAuth MCP connector, Python execution, and Scheduled Tasks). Because the methodology, sport modules, `coach_tools.py`, and MCP deployment are plain Markdown + standard-library Python, ~90% of the repo is also directly reusable with any MCP-compatible agent (Claude Code, Antigravity, Codex, Gemini CLI, etc.).
+> **Platform compatibility:** Designed for **Claude** (Projects, Library files, Skills, remote OAuth MCP connector, Python execution, and Scheduled Tasks). Because the methodology, sport modules, `coach_tools.py`, and MCP deployment are plain Markdown + standard-library Python, ~90% of the repo is also directly reusable with any MCP-compatible agent (Claude Code, Antigravity, Codex, Gemini CLI, etc.).
 
 ---
 
@@ -17,7 +19,7 @@ Naive "chat with an LLM about my workouts" setups fail in predictable ways: hall
 
 This repository addresses each failure mode explicitly:
 
-- **Deterministic math (`tools/coach_tools.py`)**: intervals.icu remains the sole source of truth for CTL, ATL, TSB, eFTP, and curves. Every other calculation—block load targets (including planned `camp` overload weeks), ±5% weekly rebalancing, Foster monotony/strain, CP/W', Critical Speed/D', CSS, HYROX compromised-running split diagnostics, HRV/RHR readiness flags, fatigued-curve durability, plan sanity checks, and intervals.icu workout linting—runs in a zero-dependency Python 3 script with **72 built-in unit tests**.
+- **Deterministic math (`tools/coach_tools.py`)**: intervals.icu remains the sole source of truth for CTL, ATL, TSB, eFTP, and curves. Every other calculation—block load targets (including planned `camp` overload weeks), ±5% weekly rebalancing, Foster monotony/strain, CP/W', Critical Speed/D', CSS, HYROX compromised-running split diagnostics, HRV/RHR readiness flags, fatigued-curve durability, plan sanity checks, and intervals.icu workout linting—runs in a zero-dependency Python 3 script with **74 built-in unit tests**.
 - **Modular multi-sport design**: a lean endurance core (`endurance-methodology.md`) paired with drop-in sport modules (`cycling.md`, `running.md`, `trail.md`, `swimming.md`, `triathlon.md`, `hyrox.md`)—plus support for custom modules (`sports/<your-sport>.md`)—so your coach loads only the physiology, terrain/gym constraints, and workout syntax relevant to your sports.
 - **Lazy-loaded workflows (`skills/`)**: 6 focused `SKILL.md` procedures (initial intake, season revision, block brief, Sunday weekly review, daily adjustment, end-of-block review) keep project instructions concise and execution reliable.
 - **Human-in-the-loop & anti-sycophancy**: strict decision hierarchy (medical/pain > validated plan > thresholds > progression), "can vs should" rule (feeling fresh never overrides a recovery week), mandatory approval before every calendar write, and a built-in monthly critical self-review.
@@ -84,7 +86,7 @@ Wearables / Bike Computer / Trainer (direct sync, not via Strava)
 │   ├── coach-daily-adjustment/SKILL.md
 │   └── coach-block-review/SKILL.md
 ├── tools/
-│   └── coach_tools.py                       # Deterministic CLI (Python 3 stdlib only, 72 self-tests)
+│   └── coach_tools.py                       # Deterministic CLI (Python 3 stdlib only, 74 self-tests)
 └── scripts/
     └── build_skills_zip.py                  # Validates SKILL.md files and builds dist/skills/*.zip
 ```
@@ -127,7 +129,7 @@ Zero external dependencies (Python 3 standard library only). Run `python3 tools/
 | Command | Purpose | Primary workflow |
 |---|---|---|
 | `targets` | Weekly block load targets (`3:1` / `2:1`, CTL ramp cap, recovery drop, `--camp-weeks` overload camps) & projected CTL/TSB | `coach-block-brief` |
-| `check-plan` | Sanity checks: load jumps, CTL ramp, `camp` recovery/intensity safety, taper, hard days, intensity split, running km & trail vert caps | `coach-block-brief`, `coach-season-revision` |
+| `check-plan` | Sanity checks: load jumps, CTL ramp, `camp` recovery/intensity safety, taper, hard days, intensity split, running single-session `longest_run_km` (+10% / Frandsen 2025) & trail vert caps | `coach-block-brief`, `coach-season-revision` |
 | `rebalance` | Checks weekly totals and adjusts an easy session to land within ±5% of target load/duration | `coach-block-brief`, `coach-weekly-review` |
 | `lint` | Lints intervals.icu workout text (`cycling`, `running`, `trail`, `swimming`, `hyrox`, `strength`), catches `400m` vs `400mtr` in swim, `% FTP`, parentheses, duration mismatches | `coach-block-brief`, `coach-weekly-review`, `coach-daily-adjustment` |
 | `wellness` | 7-day ln(rMSSD) HRV vs non-overlapping 28-day normal range, 7-day RHR trend & single-night spike, sleep | `coach-daily-adjustment`, `coach-weekly-review` |
@@ -139,7 +141,7 @@ Zero external dependencies (Python 3 standard library only). Run `python3 tools/
 | `hyrox` | HYROX split & compromised-running analyzer (run vs station %, Run 1 over-pacing, fade vs CS) | `coach-block-review` |
 | `durability` | Fatigued vs fresh power-curve retention, status, and primary limiter | `coach-block-review` |
 | `progression` | Power-curve deltas across two equivalent periods | `coach-block-review` |
-| `test` | Runs the 72-assertion self-test suite | Setup & verification |
+| `test` | Runs the 74-assertion self-test suite | Setup & verification |
 
 ---
 

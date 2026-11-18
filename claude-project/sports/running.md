@@ -4,7 +4,8 @@ Upload this file to your Claude Project Library alongside `endurance-methodology
 
 ## Core Constraint: Mechanical Impact Load
 Unlike cycling or swimming, running subjects tendons, bones, and muscles to repetitive ground impact. **Aerobic fitness often outpaces musculoskeletal tissue tolerance**—especially during a return to running or for cyclists crossing over.
-- **Prioritize mileage progression caps**: avoid increasing weekly running distance (`run_km`) by more than **10–15%** above the highest of the previous 3 weeks (`coach_tools.py check-plan`).
+- **Guard single-session distance spikes first (Frandsen et al., *BJSM* 2025)**: in a 5,205-runner cohort (> 588,000 sessions), exceeding your **longest single run of the previous 30 days by more than 10%** strongly increased overuse injury risk (+64% for a 10–30% spike; +128% when doubling). Track `longest_run_km` in `coach_tools.py check-plan` so no single run jumps > +10% above your recent 30-day max.
+- **Weekly mileage progression (low-evidence heuristic)**: keeping weekly distance (`run_km`) within +10–15% of the prior 3-week max remains a sensible conservative guardrail alongside the single-session cap, though weekly totals alone have weak predictive evidence compared to single-session spikes.
 - **CTL ramp**: cap at **+3 to +5 pts/week** in pure running (lower than cycling).
 - **Frequency before length**: when building volume safely, add a short easy run before abruptly extending the long run.
 - **Hard days**: cap at **2 quality sessions/week** for most runners (3 only for high-volume, experienced athletes with stable recovery), never back-to-back.

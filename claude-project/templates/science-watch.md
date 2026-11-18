@@ -66,6 +66,12 @@ Baseline version (v0). Verify, expand, and update during your first full review 
 - **Sources**: Foster, *Med Sci Sports Exerc* 1998; Impellizzeri et al., *Int J Sports Physiol Perform* 2020; Impellizzeri et al., *Sports Med* 2021.
 - **Last verified**: baseline.
 
+## Running Overuse Injury Risk (Single-Session Distance Spikes)
+- **Benchmark**: avoid increasing any single run by more than **+10%** above the longest run completed in the previous 30 days (`longest_run_km` in `coach_tools.py check-plan`); treat weekly mileage caps (+10–15%) as secondary low-evidence heuristics.
+- **Evidence level**: moderate-to-strong (large prospective wearable cohort).
+- **Sources**: Frandsen et al., *Br J Sports Med* 2025 (*How much running is too much? Identifying high-risk running sessions in a 5200-person cohort study*, n = 5,205 runners, > 588,000 sessions: 10–30% single-session spike associated with +64% injury hazard, > 100% spike with +128%; week-to-week total distance ratios showed no clear relationship).
+- **Last verified**: baseline.
+
 ## Heat & Acclimation
 - **Benchmark**: above ~23 °C, HR drifts higher at equal output; 1–2 weeks of heat acclimation before hot races; sodium-rich hydration and strong airflow indoors.
 - **Evidence level**: strong (consensus).
