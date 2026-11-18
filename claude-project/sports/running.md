@@ -43,6 +43,12 @@ Unlike cycling or swimming, running subjects tendons, bones, and muscles to repe
   - 10m Z1
   ```
 
+## Running-Specific Fueling & Hydration
+In addition to the core carbohydrate tiers in `endurance-methodology.md`:
+- **Lower GI tolerance than cycling**: vertical impact and reduced gut blood flow make runners more prone to GI distress—keep pre-run meals low in fiber and fat within 2–3 h of hard or long sessions.
+- **Carry strategy**: plan handhelds, belt, or soft flasks for runs > 75 min (earlier in heat). Practice your exact race gels/drink mix during long runs and race-pace blocks, building progressively toward 60–90 g/h for marathons.
+- **Post-run recovery**: prioritize carbs + protein within 1–2 h after long or threshold runs to speed glycogen replenishment and muscle repair.
+
 ## Running-Specific Strength & Prevention
 - Priority muscles: calves/soleus (primary impact absorbers), glutes/glute medius (pelvic stability), hamstrings, quads, core, and foot/ankle intrinsic stability.
 - Light plyometrics (pogo hops, jump rope, bounding): only outside injury return, pain-free, and introduced very gradually (strong evidence alongside heavy resistance training for running economy).

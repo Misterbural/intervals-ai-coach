@@ -47,6 +47,12 @@ Unlike cycling or running, **hydrodynamic drag dominates energy cost** in swimmi
   - 200mtr Z1
   ```
 
+## Swimming-Specific Fueling & Hydration
+In addition to the core carbohydrate tiers in `endurance-methodology.md`:
+- **Hidden sweat losses**: swimmers still sweat significantly in warm pools without feeling it. Keep a bottle on the pool deck for every session; use electrolytes + 30–60 g/h of liquid carbs for sessions > 60–75 min or high-intensity sets.
+- **Horizontal posture & reflux**: avoid heavy, fatty, or very large meals within 1.5–2 h before swimming; for early-morning swims, a small fast-digesting snack (e.g. banana, toast, or sports drink) works better than swimming fasted on hard sets.
+- **Open-water events**: practice feeding from a kayak/pontoon or carrying gels in a wetsuit sleeve if racing ≥ 5 km / 1.5 h+.
+
 ## Swimming-Specific Strength & Mobility
 - Priority: rotator cuff & scapular stabilizers (face pulls, external rotations, Y-T-W raises), lats/pulling strength, core anti-rotation.
 - Mobility: thoracic extension, shoulder flexion/internal-external rotation, ankle plantarflexion.
