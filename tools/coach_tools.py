@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """coach_tools.py: deterministic endurance coaching calculations for intervals.icu.
 
-Version 2.0. Python 3 standard library only (zero external dependencies).
-Supports cycling, running, trail running, and swimming / triathlon.
+Version 2.2. Python 3 standard library only (zero external dependencies).
+Supports cycling, running, trail running, swimming, triathlon, and HYROX.
 Implements the rules in endurance-methodology.md and sports/*.md; if a
 discrepancy ever exists, the methodology takes precedence and this script
 should be updated.
@@ -14,12 +14,13 @@ Subcommands (detailed help: python3 coach_tools.py <command> -h):
   cp          Cycling Critical Power (CP) & W' (3-min + 12-min tests)
   cs          Running Critical Speed (CS) & D' (two maximal efforts)
   css         Swimming Critical Swim Speed (400m + 200m tests)
-  lint        Validates intervals.icu workout text (cycling, running, trail, swimming, strength)
+  hyrox       HYROX race/simulation split analysis (run vs station %, compromised-run fade)
+  lint        Validates intervals.icu workout text (cycling, running, trail, swimming, hyrox, strength)
   wellness    HRV normal range, resting HR trend/spike, sleep: objective daily flags
   durability  Power retention on fatigued power curves
   progression Power-curve progression across two equivalent periods
   project     Projected CTL / ATL / TSB on race day (taper)
-  check-plan  Plan sanity checks (load jumps, CTL ramp, running km / trail vert, taper...)
+  check-plan  Plan sanity checks (load jumps, CTL ramp, running km / trail vert, camp, taper...)
   test        Built-in self-test suite
 
 CTL, ATL, and TSB projections are approximations (load spread evenly across
@@ -34,7 +35,7 @@ import statistics
 import sys
 from datetime import date, timedelta
 
-VERSION = "2.1"
+VERSION = "2.2"
 K_CTL = 1 / 42  # fitness time constant (days)
 K_ATL = 1 / 7   # fatigue time constant (days)
 BAR_MAX = 20
@@ -467,6 +468,129 @@ def cmd_css(args):
     print(f"Swimming threshold pace (CSS): {r['pace_100m']}")
 
 
+# ---------------------------------------------------------------- HYROX race & simulation analysis
+
+HYROX_STATIONS = [
+    "SkiErg", "Sled Push", "Sled Pull", "Burpee Broad Jumps",
+    "Rowing", "Farmers Carry", "Sandbag Lunges", "Wall Balls",
+]
+
+
+def format_duration_hms(seconds):
+    total = round(seconds)
+    h, rem = divmod(total, 3600)
+    m, s = divmod(rem, 60)
+    return f"{h}:{m:02d}:{s:02d}" if h else f"{m}:{s:02d}"
+
+
+def analyze_hyrox(runs_s, stations_s=None, roxzone_s=0.0, threshold_pace_s=None):
+    """Analyze HYROX race or simulation splits (8 x 1 km runs + optional 8 stations & Roxzone).
+
+    Computes run/station/Roxzone share, Run 1 over-pacing, 1st-half vs 2nd-half
+    run decay, worst compromised-running splits, and penalty vs fresh threshold pace.
+    """
+    if len(runs_s) != 8:
+        raise ValueError("Provide exactly 8 run splits (1 km each).")
+    if stations_s is not None and len(stations_s) != 8:
+        raise ValueError("If provided, stations must have exactly 8 splits.")
+
+    total_run = sum(runs_s)
+    total_stations = sum(stations_s) if stations_s else 0.0
+    total_time = total_run + total_stations + roxzone_s
+
+    mean_all = _mean(runs_s)
+    mean_r2_8 = _mean(runs_s[1:])
+    first_half = _mean(runs_s[:4])
+    second_half = _mean(runs_s[4:])
+
+    r1_overpace_s = mean_r2_8 - runs_s[0]  # positive means Run 1 was faster than Runs 2-8
+    half_fade_s = second_half - first_half
+    worst_idx = max(range(8), key=lambda i: runs_s[i])
+    worst_prev_station = None if worst_idx == 0 else HYROX_STATIONS[worst_idx - 1]
+
+    flags = []
+    if r1_overpace_s > 10:
+        flags.append(f"Run 1 over-paced by {r1_overpace_s:.0f} s/km vs Runs 2-8 mean")
+    if half_fade_s > 10:
+        flags.append(f"second-half run decay of +{half_fade_s:.0f} s/km (Runs 5-8 vs 1-4)")
+    if roxzone_s and total_time and roxzone_s / total_time > 0.08:
+        flags.append(f"Roxzone accounts for {roxzone_s / total_time * 100:.1f}% of race (> 8%: easy time to save)")
+
+    compromised_penalty_s = None
+    compromised_penalty_pct = None
+    if threshold_pace_s:
+        compromised_penalty_s = mean_r2_8 - threshold_pace_s
+        compromised_penalty_pct = compromised_penalty_s / threshold_pace_s * 100
+        if compromised_penalty_pct > 15:
+            flags.append(
+                f"high compromised-running penalty (+{compromised_penalty_s:.0f} s/km, "
+                f"+{compromised_penalty_pct:.1f}% vs fresh threshold pace)"
+            )
+
+    res = {
+        "total_time_s": round(total_time, 1),
+        "total_time": format_duration_hms(total_time),
+        "run_total_s": round(total_run, 1),
+        "run_total": format_duration_hms(total_run),
+        "run_share_pct": round(total_run / total_time * 100, 1) if total_time else None,
+        "station_total_s": round(total_stations, 1) if stations_s else None,
+        "station_total": format_duration_hms(total_stations) if stations_s else None,
+        "station_share_pct": round(total_stations / total_time * 100, 1) if stations_s and total_time else None,
+        "roxzone_s": round(roxzone_s, 1) if roxzone_s else 0.0,
+        "roxzone_share_pct": round(roxzone_s / total_time * 100, 1) if roxzone_s and total_time else 0.0,
+        "mean_run_pace": format_pace(mean_all, "/km"),
+        "mean_runs_2_8_pace": format_pace(mean_r2_8, "/km"),
+        "run1_vs_runs2_8_s": round(r1_overpace_s, 1),
+        "second_vs_first_half_s": round(half_fade_s, 1),
+        "slowest_run": {
+            "run_number": worst_idx + 1,
+            "pace": format_pace(runs_s[worst_idx], "/km"),
+            "after_station": worst_prev_station,
+        },
+        "compromised_penalty_s": round(compromised_penalty_s, 1) if compromised_penalty_s is not None else None,
+        "compromised_penalty_pct": round(compromised_penalty_pct, 1) if compromised_penalty_pct is not None else None,
+        "flags": flags,
+    }
+    if stations_s:
+        slowest_st_idx = max(range(8), key=lambda i: stations_s[i])
+        res["slowest_station"] = {
+            "station": HYROX_STATIONS[slowest_st_idx],
+            "time": format_duration_hms(stations_s[slowest_st_idx]),
+        }
+    return res
+
+
+def cmd_hyrox(args):
+    runs = [parse_time_s(t) for t in re.split(r"[,;\s]+", args.runs.strip()) if t]
+    stations = ([parse_time_s(t) for t in re.split(r"[,;\s]+", args.stations.strip()) if t]
+                if args.stations else None)
+    roxzone = parse_time_s(args.roxzone) if args.roxzone else 0.0
+    threshold = parse_time_s(args.threshold_pace) if args.threshold_pace else None
+    r = analyze_hyrox(runs, stations, roxzone, threshold)
+    if args.json_out:
+        print(json.dumps(r, ensure_ascii=False, indent=2))
+        return
+    print(f"Total time: {r['total_time']} | Runs: {r['run_total']} ({r['run_share_pct']}%)")
+    if r["station_total"] is not None:
+        print(f"Stations: {r['station_total']} ({r['station_share_pct']}%) | "
+              f"Slowest station: {r['slowest_station']['station']} ({r['slowest_station']['time']})")
+    if r["roxzone_s"]:
+        print(f"Roxzone: {format_duration_hms(r['roxzone_s'])} ({r['roxzone_share_pct']}%)")
+    print(f"Run pace: mean {r['mean_run_pace']} | Runs 2-8 mean {r['mean_runs_2_8_pace']} | "
+          f"Run 1 vs R2-8: {r['run1_vs_runs2_8_s']:+.0f} s/km | 2nd vs 1st half: {r['second_vs_first_half_s']:+.0f} s/km")
+    after = f" (after {r['slowest_run']['after_station']})" if r["slowest_run"]["after_station"] else ""
+    print(f"Slowest run: Run {r['slowest_run']['run_number']} at {r['slowest_run']['pace']}{after}")
+    if r["compromised_penalty_s"] is not None:
+        print(f"Compromised-running penalty vs threshold pace: "
+              f"{r['compromised_penalty_s']:+.0f} s/km ({r['compromised_penalty_pct']:+.1f}%)")
+    if r["flags"]:
+        print("Diagnostics:")
+        for fl in r["flags"]:
+            print("  - " + fl)
+    else:
+        print("Diagnostics: well-paced run splits and transitions.")
+
+
 # ---------------------------------------------------------------- workout linter
 
 RE_DUR = re.compile(r"^(?:(\d+)h)?(?:(\d+)(?:m|min))?(?:(\d+)s)?$")
@@ -510,13 +634,17 @@ def lint_workout(text, workout_type="cycling", expected_duration=None):
     errors, warnings = [], []
     lines = text.splitlines()
 
-    if workout_type == "strength":
+    if workout_type in ("strength", "hyrox"):
         for i, line in enumerate(lines, 1):
             if is_step(line):
-                errors.append(f"line {i}: leading dash forbidden in strength sessions ('{line.strip()}')")
-            if re.search(r"\d%|\b[Zz]\d\b", line):
+                errors.append(f"line {i}: leading dash forbidden in {workout_type} sessions ('{line.strip()}')")
+            if workout_type == "strength" and re.search(r"\d%|\b[Zz]\d\b", line):
                 warnings.append(f"line {i}: endurance intensity (% or zone) found in a strength session")
-        if not any(re.search(r"\d+\s*[x×]\s*\d+", line) for line in lines):
+        if workout_type == "hyrox":
+            for symbol, name in (("🎯", "GOAL"), ("🍌", "FUELING"), ("📋", "CUES")):
+                if symbol not in text:
+                    warnings.append(f"section {symbol} {name} missing from description")
+        elif not any(re.search(r"\d+\s*[x×]\s*\d+", line) for line in lines):
             warnings.append("no exercise in sets x reps format (e.g. 3x8)")
         if not re.search(r"RIR|RPE", text):
             warnings.append("effort cue missing (RIR or RPE)")
@@ -1291,6 +1419,21 @@ def run_self_test():
     ]})
     ok(any(c["check"].startswith("Training camp") and c["status"] == "WARN" for c in r), "too-intense camp warns")
 
+    # HYROX analysis and linter
+    runs = [parse_time_s(t) for t in ["4:05", "4:25", "4:45", "4:30", "4:50", "4:35", "4:40", "5:05"]]
+    stations = [parse_time_s(t) for t in ["4:10", "3:15", "4:00", "4:20", "4:15", "2:00", "4:30", "5:30"]]
+    r = analyze_hyrox(runs, stations, roxzone_s=360, threshold_pace_s=240)
+    ok(abs(r["run_share_pct"] - 49.3) < 0.1 and abs(r["run_share_pct"] + r["station_share_pct"] + r["roxzone_share_pct"] - 100.0) < 0.2,
+       f"hyrox share: {r}")
+    ok(r["slowest_run"]["run_number"] == 8 and r["slowest_run"]["after_station"] == "Sandbag Lunges", f"slowest run: {r}")
+    ok(any("Run 1 over-paced" in f for f in r["flags"]), f"run 1 over-pacing flag: {r['flags']}")
+    ok(any("second-half run decay" in f for f in r["flags"]), f"2nd-half decay flag: {r['flags']}")
+    ok(any("compromised-running penalty" in f for f in r["flags"]), f"compromised penalty flag: {r['flags']}")
+    r_hl = lint_workout("🎯 GOAL: hybrid\n🍌 FUELING: gel\n📋 CUES: RPE 8\n\n4x 1km + 25m Sled Push 152 kg\n", "hyrox")
+    ok(not r_hl["errors"] and not r_hl["warnings"], f"valid hyrox lint: {r_hl}")
+    r_hl_bad = lint_workout("- 25m Sled Push\n", "hyrox")
+    ok(bool(r_hl_bad["errors"]), "hyrox leading dash caught")
+
     print(f"All tests passed ({n}). coach_tools.py version {VERSION}.")
 
 
@@ -1357,9 +1500,17 @@ def main():
     c.add_argument("--json-out", action="store_true")
     c.set_defaults(f=cmd_css)
 
+    c = sp.add_parser("hyrox", help="HYROX race/simulation split & compromised-running analysis")
+    c.add_argument("--runs", required=True, help="8 comma-separated 1 km splits, e.g. 4:10,4:25,4:40,...")
+    c.add_argument("--stations", help="optional 8 station times in order (SkiErg -> Wall Balls)")
+    c.add_argument("--roxzone", help="optional total Roxzone time (e.g. 5:30 or 330)")
+    c.add_argument("--threshold-pace", help="fresh running threshold pace for compromised-running penalty (e.g. 4:00)")
+    c.add_argument("--json-out", action="store_true")
+    c.set_defaults(f=cmd_hyrox)
+
     c = sp.add_parser("lint", help="validate intervals.icu workout syntax")
     c.add_argument("--file", help="workout text file (defaults to stdin)")
-    c.add_argument("--type", choices=["cycling", "running", "trail", "swimming", "strength", "endurance"],
+    c.add_argument("--type", choices=["cycling", "running", "trail", "swimming", "hyrox", "strength", "endurance"],
                    default="cycling")
     c.add_argument("--expected-duration", type=float, help="planned duration in minutes")
     c.add_argument("--json-out", action="store_true")

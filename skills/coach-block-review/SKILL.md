@@ -9,7 +9,8 @@ First read the block's opening entry in `coaching-journal.md`, `endurance-method
 1. **Threshold tests** (if scheduled): run the sport-appropriate calculator and show the math:
    - Cycling: `coach_tools.py cp` (3-min + 12-min tests, noting test location and indoor/outdoor offset);
    - Running: `coach_tools.py cs` (two maximal efforts → threshold pace & D');
-   - Swimming: `coach_tools.py css` (400 m + 200 m → CSS pace per 100 m).
+   - Swimming: `coach_tools.py css` (400 m + 200 m → CSS pace per 100 m);
+   - HYROX: `coach_tools.py hyrox` on simulation or race splits (8 × 1 km runs + optional stations & Roxzone → run vs station share, Run 1 over-pacing, compromised-running penalty vs CS).
 2. **Benchmark sessions**: review trends in RPE, HR at fixed output (or Efficiency Factor `EF`), decoupling, and next-day recovery. Apply the anti-false-positive rule: call progression only when ≥ 2 indicators move together across ≥ 2 occurrences.
 3. **Passive indicators & durability**: review power/pace curves (`coach_tools.py progression`), eFTP/estimated thresholds, durability (`coach_tools.py durability` on fatigued curves in cycling, or late-long-run fade/VAM in running/trail), and CTL. Keep indoor/outdoor and flat/hilly comparisons separate. Identify the block's primary limiter.
 4. **Threshold update**: propose numeric updates only when backed by a test or clear multi-indicator convergence. Once approved, apply the new settings directly in intervals.icu via MCP and remind the athlete to sync third-party apps (e.g. Zwift, watch) if needed.

@@ -72,5 +72,11 @@ Baseline version (v0). Verify, expand, and update during your first full review 
 - **Sources**: Racinais et al., Consensus Recommendations on Training and Competing in the Heat, *Scand J Med Sci Sports* 2015.
 - **Last verified**: baseline.
 
+## HYROX Physiological Demands & Pacing
+- **Benchmark**: treat HYROX as an interval-based endurance event under heavy local muscular fatigue (~59% running time, ~38% stations, ~80% of race at very hard HR; blood lactate spikes higher on stations than runs, peaking on Wall Balls); prioritize aerobic running engine (VO2max + endurance volume) and compromised-running tolerance over isolated maximal strength; space heavy sled/lunge work away from high-intensity running.
+- **Evidence level**: moderate (peer-reviewed full-race physiological study + concurrent training meta-analysis).
+- **Sources**: Brandt et al., *Frontiers in Physiology* 2025 (physiological demands and performance determinants of HYROX); Schumann et al., *Sports Med* 2022 (concurrent training).
+- **Last verified**: baseline.
+
 ## Review Log
-- Baseline (v0): multi-sport endurance foundation (cycling, running, trail, triathlon).
+- Baseline (v0): multi-sport endurance foundation (cycling, running, trail, swimming, triathlon, HYROX).
