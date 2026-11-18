@@ -99,8 +99,33 @@ Wearables / Bike Computer / Trainer (direct sync, not via Strava)
    - Generate an API key and note your Athlete ID (`i123456`).
    - Connect your watch / head unit / indoor trainer **directly** to intervals.icu (not via Strava—Strava-sourced activities return empty shells via the intervals.icu API).
    - Enable daily wearable wellness sync (HRV, resting HR, sleep).
-2. **Deploy the MCP server**
-   - Follow [docs/vps-mcp-deployment.md](docs/vps-mcp-deployment.md) to run [`intervals-icu-mcp`](https://github.com/hhopke/intervals-icu-mcp) behind Cloudflare Tunnel + Access Managed OAuth and add it as a Custom Connector in Claude (**Always allow** read tools, **Manual approval** for write/delete tools).
+2. **Connect intervals.icu via MCP (pick 1 of 3 options)**
+
+   | Option | Difficulty | Privacy | Desktop | Mobile & Scheduled Tasks |
+   |---|---|---|---|---|
+   | **A. Local Claude Desktop (`stdio`)** | Easy (~5 min, free) | 100% private (local) | Yes | No |
+   | **B. Self-hosted VPS + Cloudflare OAuth** | Intermediate (~30–45 min) | 100% private (your server) | Yes | Yes |
+   | **C. Hosted third-party OAuth MCP** | Easiest (~2 min) | Third-party service* | Yes | Yes |
+
+   - **Option A — Local Claude Desktop (easiest private setup, no VPS):** install [`uv`](https://docs.astral.sh/uv/) and add `intervals-icu-mcp` to your `claude_desktop_config.json`:
+     ```json
+     {
+       "mcpServers": {
+         "intervals-icu": {
+           "command": "uvx",
+           "args": ["intervals-icu-mcp@5.7.1"],
+           "env": {
+             "INTERVALS_ICU_API_KEY": "YOUR_API_KEY",
+             "INTERVALS_ICU_ATHLETE_ID": "i123456",
+             "INTERVALS_ICU_DELETE_MODE": "safe"
+           }
+         }
+       }
+     }
+     ```
+   - **Option B — Full self-hosted remote MCP (desktop + mobile + scheduled tasks):** follow [docs/vps-mcp-deployment.md](docs/vps-mcp-deployment.md) to deploy [`intervals-icu-mcp`](https://github.com/hhopke/intervals-icu-mcp) behind Cloudflare Tunnel + Access Managed OAuth and add it as a Custom Connector in Claude.
+   - **Option C — Hosted community OAuth MCP (zero infrastructure):** community-hosted remote MCP servers using intervals.icu's official OAuth 2.0 flow (such as `gregaria-mcp` at `https://mcp.gregaria.app/`) let you connect without a VPS or API key. *\*Note: third-party hosted servers are unaffiliated with this repo—review their privacy policy, security, and available tool coverage before connecting, as tool names or write capabilities may differ from `intervals-icu-mcp`.*
+   - **Permissions (all options):** set **Always allow** on read-only tools and **Manual approval** on every create/update/delete tool.
 3. **Package & import the 6 Skills**
    ```bash
    python3 tools/coach_tools.py test
