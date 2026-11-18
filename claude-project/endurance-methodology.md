@@ -73,6 +73,14 @@ Pair this file with the active sport module(s) from `sports/*.md`. When updated,
   - **Support**: step up carbohydrates, hydration, sleep, and daily HRV/RHR checks throughout the camp.
 - **Presentation before writing**: show a weekly summary table (phase, target load with `▇` bar, hours, delta %), then day-by-day detail for the week being written (type, title, duration, load). Write nothing without explicit approval. Athlete overrides take precedence over plan rules, though the coach must state candidly if an override creates risk. Medical directives always remain on top.
 
+## Multi-Sport & Cross-Training (Non-Triathlon Included)
+Any combination of sport modules (e.g. `cycling.md` + `running.md`, `trail.md` + `cycling.md`, `running.md` + `swimming.md`) works together under one shared systemic load—no `triathlon.md` required:
+- **Define the sport mix upfront** (in `athlete-profile.md` and each block brief): **primary sport + cross-training** (e.g. 80% cycling + 1–2 easy runs/week, or trail runner adding indoor cycling volume) vs **balanced dual/multi-sport** (e.g. 50/50 cycling & running).
+- **One nervous system, one hard-day budget**: never stack two independent single-sport plans. Cap hard sessions at **2–3 days/week across all sports combined** (e.g. 1 key bike + 1 key run, not 2 key bike + 2 key run).
+- **Separate thresholds & zones**: keep FTP/CP, threshold pace/CS, CSS, and sport-specific LTHR strictly separate in intervals.icu.
+- **Respect local tissue tolerance on impact sports**: when a well-trained cyclist or swimmer adds running, their aerobic CTL far exceeds tendon/bone tolerance—always enforce `running.md` caps (`longest_run_km` ≤ +10% vs 30-day max, conservative starting volume) regardless of overall CTL.
+- **Sequencing**: avoid high-intensity running the day after heavy leg-draining bike or sled sessions; use non-impact sports (easy cycling, easy swimming) as low-stress aerobic volume between impact days.
+
 ## Writing to intervals.icu
 - Before editing: read the target date range, identify the exact event ID, and update by ID rather than deleting and recreating, preserving untouched fields.
 - No duplicates: verify no equivalent session already exists on that date.

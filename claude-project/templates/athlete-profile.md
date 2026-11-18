@@ -10,7 +10,8 @@ Replace this file after major threshold tests, gear changes, injuries, or lastin
 
 ## Sports & Background
 - Primary sport(s): [e.g. cycling / running / trail / swimming / triathlon / HYROX]
-- Active sport modules in this project: [e.g. running.md, hyrox.md]
+- Active sport modules in this project: [e.g. cycling.md, running.md]
+- Sport mix & priority (if 2+ sports): [e.g. primary cycling + 1–2 easy runs/week for cross-training, or 50/50 cycling & trail]
 - Training background: [e.g. 4 years of structured training, 1:32 half marathon, 150 km gran fondos...]
 - Typical weekly volume: [e.g. 5–7 h/week]
 

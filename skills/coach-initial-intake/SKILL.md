@@ -10,7 +10,7 @@ Principle: the intake establishes the athlete's profile, coaching language, envi
 2. Read `endurance-methodology.md`, `coaching-journal.md`, `athlete-profile.md` (if present), and the active sport module(s) (`cycling.md`, `running.md`, `trail.md`, `swimming.md`, `triathlon.md`, `hyrox.md`, or custom) in the Project Library.
 3. Analyze the last 3 months on intervals.icu: weekly volume and load by sport, current CTL/ATL/TSB, time-in-zone distribution, recent best efforts, and available wellness metrics (HRV, RHR, sleep). Summarize in 5 lines. If older activities are empty shells from Strava, flag it and use a backup connector if available. If returning from injury or layoff, explicitly note that older benchmarks do not represent current fitness.
 4. Interview the athlete in short rounds (3–5 questions per message) across as many turns as needed; do not draft files until no major gaps remain. Cover:
-   - **profile & gear** (if `athlete-profile.md` is missing or incomplete): age/weight, training background, sensors/power meters/watch, direct sync sources;
+   - **profile & gear** (if `athlete-profile.md` is missing or incomplete): age/weight, training background, sport mix & priority if practicing 2+ sports (primary + cross-training vs equal split), sensors/power meters/watch, direct sync sources;
    - **goals & horizon**: A/B/C races (or explicit lack of target race), dates, sport/format/vert, success criteria, process goals;
    - **health & injury context**: injury history, sensitive areas, medical/physio clearance and active restrictions if returning from injury;
    - **sport-specific environment & logistics** (ask only what fits the active sport modules):
