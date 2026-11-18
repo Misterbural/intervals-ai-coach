@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Locally built skill archives
+dist/
+
+# Personal local files (never commit private athlete data or secrets)
+*.local.md
+.env
+*.env
+
+# OS & editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
