@@ -105,7 +105,7 @@ Wearables / Bike Computer / Trainer (direct sync, not via Strava)
    |---|---|---|---|---|---|
    | **A. Local Claude Desktop (`stdio`)** | Moderate (~15–20 min) | Free | 100% private (local) | No (desktop only) | Same server (`intervals-icu-mcp`), local mode untested |
    | **B. Self-hosted VPS + Cloudflare OAuth** | Advanced (a few hours) | ~$5–8/mo (VPS + domain) | 100% private (your server) | Yes | **Verified at installation** |
-   | **C. Official Intervals.icu MCP (Beta)** | Easiest (~2–5 min) | Free | Official intervals.icu OAuth | Yes | **Beta — untested with this repo** |
+   | **C. Official Intervals.icu MCP (Beta)** | Easiest (~2–5 min) | $4/mo (Intervals.icu Supporter) | Official intervals.icu OAuth | Yes | **Beta — untested with this repo** |
 
    - **Option A — Local Claude Desktop (free, private, no VPS):** install [`uv`](https://docs.astral.sh/uv/) and add `intervals-icu-mcp` to your `claude_desktop_config.json`:
      ```json
@@ -125,7 +125,7 @@ Wearables / Bike Computer / Trainer (direct sync, not via Strava)
      ```
      > **Security note:** `claude_desktop_config.json` stores your intervals.icu API key in plaintext (full read/write access). Never share, screenshot, or commit this file.
    - **Option B — Full self-hosted remote MCP (desktop + mobile + scheduled tasks):** follow [docs/vps-mcp-deployment.md](docs/vps-mcp-deployment.md) to deploy [`intervals-icu-mcp`](https://github.com/hhopke/intervals-icu-mcp) behind Cloudflare Tunnel + Access Managed OAuth and add it as a Custom Connector in Claude.
-   - **Option C — Official Intervals.icu MCP Connector (Beta, zero infrastructure):** Intervals.icu provides an official remote OAuth MCP server in beta at `https://mcp.intervals.icu/mcp` (setup details at [intervals.icu/connector](https://www.intervals.icu/connector)). Add it as a Custom Connector in Claude and authorize via OAuth—no VPS or API key needed. *(Community third-party OAuth alternatives such as `gregaria-mcp` also exist, though the official connector avoids sharing data with a third party.)* **Note:** Option C is in beta and has **not yet been tested with this repo**—verify tool coverage (such as ATP writes, workout syntax resources, and event updates by ID) during your pilot week.
+   - **Option C — Official Intervals.icu MCP Connector (Beta, zero infrastructure):** Intervals.icu provides an official remote OAuth MCP server in beta at `https://mcp.intervals.icu/mcp` (setup details at [intervals.icu/connector](https://www.intervals.icu/connector); requires an **Intervals.icu Supporter subscription, $4/mo**). Add it as a Custom Connector in Claude and authorize via OAuth—no VPS or API key needed. *(Community third-party OAuth alternatives such as `gregaria-mcp` also exist, though the official connector avoids sharing data with a third party.)* **Note:** Option C is in beta and has **not yet been tested with this repo**. As documented on its setup page, it supports core calendar/workout writes, weekly targets, phases, A-races, and threshold updates, but does **not yet** support saving to the workout library, step-by-step planned-vs-actual comparison, or reading training plans—verify behavior during your pilot week.
    - **Permissions (all options):** set **Always allow** on read-only tools and **Manual approval** on every create/update/delete tool.
 3. **Package & import the 6 Skills**
    ```bash
