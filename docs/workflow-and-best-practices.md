@@ -47,6 +47,8 @@ Treat your first week (especially when returning from injury or layoff) as a **d
 
 ## Optional: Automating with Scheduled Tasks
 
+> **Requirement:** Claude Project Scheduled Tasks run in the cloud and require a **remote MCP connector (Option B self-hosted VPS or Option C Official Intervals.icu MCP)**—they do not work with local Claude Desktop `stdio` (Option A).
+
 After **3–4 weeks of real use** (once routines are dialed in and your 14–28 night HRV baseline is established), you can add Claude Project Scheduled Tasks:
 
 | Schedule | Coach action | Your action |

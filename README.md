@@ -101,13 +101,13 @@ Wearables / Bike Computer / Trainer (direct sync, not via Strava)
    - Enable daily wearable wellness sync (HRV, resting HR, sleep).
 2. **Connect intervals.icu via MCP (pick 1 of 3 options)**
 
-   | Option | Difficulty | Privacy | Desktop | Mobile & Scheduled Tasks |
-   |---|---|---|---|---|
-   | **A. Local Claude Desktop (`stdio`)** | Easy (~5 min, free) | 100% private (local) | Yes | No |
-   | **B. Self-hosted VPS + Cloudflare OAuth** | Intermediate (~30–45 min) | 100% private (your server) | Yes | Yes |
-   | **C. Hosted third-party OAuth MCP** | Easiest (~2 min) | Third-party service* | Yes | Yes |
+   | Option | Difficulty & Time | Cost | Privacy | Mobile & Scheduled Tasks | Repo Status |
+   |---|---|---|---|---|---|
+   | **A. Local Claude Desktop (`stdio`)** | Moderate (~15–20 min) | Free | 100% private (local) | No (desktop only) | Same server (`intervals-icu-mcp`), local mode untested |
+   | **B. Self-hosted VPS + Cloudflare OAuth** | Advanced (a few hours) | ~$5–8/mo (VPS + domain) | 100% private (your server) | Yes | **Verified at installation** |
+   | **C. Official Intervals.icu MCP (Beta)** | Easiest (~2–5 min) | Free | Official intervals.icu OAuth | Yes | **Beta — untested with this repo** |
 
-   - **Option A — Local Claude Desktop (easiest private setup, no VPS):** install [`uv`](https://docs.astral.sh/uv/) and add `intervals-icu-mcp` to your `claude_desktop_config.json`:
+   - **Option A — Local Claude Desktop (free, private, no VPS):** install [`uv`](https://docs.astral.sh/uv/) and add `intervals-icu-mcp` to your `claude_desktop_config.json`:
      ```json
      {
        "mcpServers": {
@@ -123,8 +123,9 @@ Wearables / Bike Computer / Trainer (direct sync, not via Strava)
        }
      }
      ```
+     > **Security note:** `claude_desktop_config.json` stores your intervals.icu API key in plaintext (full read/write access). Never share, screenshot, or commit this file.
    - **Option B — Full self-hosted remote MCP (desktop + mobile + scheduled tasks):** follow [docs/vps-mcp-deployment.md](docs/vps-mcp-deployment.md) to deploy [`intervals-icu-mcp`](https://github.com/hhopke/intervals-icu-mcp) behind Cloudflare Tunnel + Access Managed OAuth and add it as a Custom Connector in Claude.
-   - **Option C — Hosted community OAuth MCP (zero infrastructure):** community-hosted remote MCP servers using intervals.icu's official OAuth 2.0 flow (such as `gregaria-mcp` at `https://mcp.gregaria.app/`) let you connect without a VPS or API key. *\*Note: third-party hosted servers are unaffiliated with this repo—review their privacy policy, security, and available tool coverage before connecting, as tool names or write capabilities may differ from `intervals-icu-mcp`.*
+   - **Option C — Official Intervals.icu MCP Connector (Beta, zero infrastructure):** Intervals.icu provides an official remote OAuth MCP server in beta at `https://mcp.intervals.icu/mcp` (setup details at [intervals.icu/connector](https://www.intervals.icu/connector)). Add it as a Custom Connector in Claude and authorize via OAuth—no VPS or API key needed. *(Community third-party OAuth alternatives such as `gregaria-mcp` also exist, though the official connector avoids sharing data with a third party.)* **Note:** Option C is in beta and has **not yet been tested with this repo**—verify tool coverage (such as ATP writes, workout syntax resources, and event updates by ID) during your pilot week.
    - **Permissions (all options):** set **Always allow** on read-only tools and **Manual approval** on every create/update/delete tool.
 3. **Package & import the 6 Skills**
    ```bash
